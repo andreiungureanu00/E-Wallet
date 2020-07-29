@@ -1,18 +1,13 @@
-import 'dart:convert';
-
 import 'package:e_wallet/AuthScreen/sign_up_page_screen.dart';
-import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
 import 'package:e_wallet/MainScreen/main_screen.dart';
 import 'package:e_wallet/models/user.dart';
+import 'package:e_wallet/rest/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
-import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
 
 class MyLoginPage extends StatefulWidget {
   @override
@@ -20,112 +15,10 @@ class MyLoginPage extends StatefulWidget {
 }
 
 class _MyLoginPageState extends State<MyLoginPage> {
-  final _auth = FirebaseAuth.instance;
-  bool showProgress = false;
-  String email, password, name, photoUrl;
-  var jwt;
-  var profile;
-  var graphResponse;
-  FirebaseUser _user;
-  bool isSignInGoogle = false;
-  bool isSignInFacebook = false;
-  bool login = false;
-  GoogleSignIn _googleSignIn = new GoogleSignIn(
-      scopes: ['email', 'https://www.googleapis.com/auth/contacts.readonly']);
   User currentUser;
-
-  bool isSignIn = false;
-  var facebookLogin = new FacebookLogin();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  getCredentials() async {}
-
-  void _logInWithFacebook() async {
-    var result = await facebookLogin.logIn(['email']);
-
-    if (result.status == FacebookLoginStatus.loggedIn) {
-      try {
-        var facebookLoginResult = await facebookLogin.logIn(['email']);
-        var graphResponse = await http.get(
-            'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email,picture.width(400)&access_token=${facebookLoginResult.accessToken.token}');
-
-        var profile = json.decode(graphResponse.body);
-
-        setState(() {
-          isSignInFacebook = true;
-          isSignInGoogle = false;
-          isSignIn = false;
-        });
-
-        currentUser = User(
-            profile["first_name"],
-            profile["last_name"],
-            profile["email"],
-            profile["name"],
-            profile["password"],
-            profile["picture"]["data"]["url"]);
-
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainScreen(currentUser),
-            ));
-      } on PlatformException catch (e) {
-        print(e.toString());
-      }
-    } else if (result.status == FacebookLoginStatus.cancelledByUser) {
-      print("CancelledByUser");
-    } else if (result.status == FacebookLoginStatus.error) {
-      print("Error");
-    }
-  }
-
-  void _logoutFromFacebook() async {
-    facebookLogin.logOut();
-    setState(() {
-      isSignInFacebook = false;
-    });
-  }
-
-  void _logInWithGoogle() async {
-    GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
-    GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
-
-    AuthCredential credential = GoogleAuthProvider.getCredential(
-        idToken: googleSignInAuthentication.idToken,
-        accessToken: googleSignInAuthentication.accessToken);
-
-    AuthResult result = (await _auth.signInWithCredential(credential));
-    _user = result.user;
-
-    currentUser = User(_user.displayName, _user.displayName, _user.email, _user.email, "", _user.photoUrl);
-
-    setState(() {
-      isSignInGoogle = true;
-      isSignInFacebook = false;
-      isSignIn = false;
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                MainScreen(currentUser),
-          ));
-    });
-  }
-
-  Future<void> googleSignout() async {
-    await _auth.signOut().then((onValue) {
-      _googleSignIn.signOut();
-      setState(() {
-        isSignInGoogle = false;
-      });
-    });
-  }
+  bool showProgress;
+  bool isSignIn = false, isSignInFacebook = false, isSignInGoogle = false;
+  final _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +65,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                       keyboardType: TextInputType.emailAddress,
                       textAlign: TextAlign.center,
                       onChanged: (value) {
-                        email = value; // get value from TextField
+                        currentUser.email = value; // get value from TextField
                       },
                       decoration: InputDecoration(
                           hintText: "Enter your Email",
@@ -187,7 +80,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                       obscureText: true,
                       textAlign: TextAlign.center,
                       onChanged: (value) {
-                        password = value; //get value from textField
+                        currentUser.password = value; //get value from textField
                       },
                       decoration: InputDecoration(
                           hintText: "Enter your Password",
@@ -230,7 +123,8 @@ class _MyLoginPageState extends State<MyLoginPage> {
                               if (isSignIn == false) {
                                 final newUser =
                                     await _auth.signInWithEmailAndPassword(
-                                        email: email, password: password);
+                                        email: currentUser.email,
+                                        password: currentUser.password);
 
                                 if (newUser != null) {
                                   Fluttertoast.showToast(
@@ -248,13 +142,11 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                   var photoUrl =
                                       "https://scontent.fkiv4-1.fna.fbcdn.net/v/t1.30497-1/s480x480/84628273_176159830277856_972693363922829312_n.jpg?_nc_cat=1&_nc_sid=12b3be&_nc_ohc=EiCVFZsOtR0AX8bAVby&_nc_ht=scontent.fkiv4-1.fna&_nc_tp=7&oh=4ca52c73ce307020f39f4731f487731d&oe=5F3BA3AA";
 
-//                                  currentUser = User()
-
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => MainScreen(
-                                            currentUser),
+                                        builder: (context) =>
+                                            MainScreen(currentUser),
                                       ));
                                 }
                               } else {
@@ -265,7 +157,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                           minWidth: 200.0,
                           height: 25.0,
                           child: Text(
-                            isSignIn ? "Login" : "Logout",
+                            "Login",
                             style: TextStyle(
                                 fontWeight: FontWeight.w500, fontSize: 20.0),
                           ),
@@ -281,7 +173,12 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                     "Logout from Facebook",
                                     style: TextStyle(color: Colors.white),
                                   ),
-                                  onPressed: _logoutFromFacebook,
+                                  onPressed: () {
+                                    AuthRepository().logoutFromFacebook();
+                                    setState(() {
+                                      isSignInFacebook = false;
+                                    });
+                                  },
                                   color: Colors.indigo,
                                 ),
                               ],
@@ -293,7 +190,19 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                 SizedBox(height: 60),
                                 FacebookSignInButton(
                                   onPressed: () {
-                                    _logInWithFacebook();
+                                    AuthRepository()
+                                        .logInWithFacebook(currentUser);
+                                    setState(() {
+                                      isSignInFacebook = true;
+                                      isSignInGoogle = false;
+                                      isSignIn = false;
+                                    });
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              MainScreen(currentUser),
+                                        ));
                                   },
                                 )
                               ]),
@@ -307,7 +216,10 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                   child: FlatButton(
                                     color: Color(0xffE1E9E5),
                                     onPressed: () {
-                                      googleSignout();
+                                      AuthRepository().googleSignout();
+                                      setState(() {
+                                        isSignInGoogle = false;
+                                      });
                                     },
                                     child: Row(
                                       mainAxisAlignment:
@@ -332,7 +244,18 @@ class _MyLoginPageState extends State<MyLoginPage> {
                             child: FlatButton(
                               color: Color(0xffE1E9E5),
                               onPressed: () {
-                                _logInWithGoogle();
+                                AuthRepository().logInWithGoogle(currentUser);
+                                setState(() {
+                                  isSignInGoogle = true;
+                                  isSignInFacebook = false;
+                                  isSignIn = false;
+                                });
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          MainScreen(currentUser),
+                                    ));
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
