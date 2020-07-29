@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "777630330115",
+    "firebase_url": "https://e-wallet-68f75.firebaseio.com",
+    "project_id": "e-wallet-68f75",
+    "storage_bucket": "e-wallet-68f75.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:777630330115:android:32b4220f55dc73c4540d36",
+        "android_client_info": {
+          "package_name": "com.app.e_wallet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "777630330115-r1qhf73781m2b1c8kqbj3mv9o5lgsnev.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAp0hJugbBQLLqWQkurf159ONmAqmGgPXw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "777630330115-r1qhf73781m2b1c8kqbj3mv9o5lgsnev.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
