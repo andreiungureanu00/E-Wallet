@@ -45,18 +45,12 @@ class BankRepository {
         CacheConfig(baseUrl: "${StringConfigs.baseApiUrl}/banks/coin/$bankID/?format=json"))
         .interceptor);
 
-    print("Bank id = " + bankID.toString());
-
     response = await dio.get(
         "${StringConfigs.baseApiUrl}/banks/coin/$bankID/?format=json",
         options: buildCacheOptions(Duration(days: 7),));
 
-    print(response.data.toString());
-
     for (var i in response.data["results"]) {
       Coin coin = Coin.fromJson(i);
-
-      print("Coin ID = " + coin.id.toString());
 
       dio.interceptors.add(DioCacheManager(
           CacheConfig(baseUrl: "${StringConfigs.baseApiUrl}/statistics/live/${coin.id}/?format=json"))
@@ -68,9 +62,6 @@ class BankRepository {
             maxStale: Duration(days: 10),
             forceRefresh: true,
           ));
-
-
-      print(response.data.toString());
 
       rate = Rate.fromJson(response.data);
       coin.rate_sell = rate.rate_sell;

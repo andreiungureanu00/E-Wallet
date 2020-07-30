@@ -22,8 +22,6 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
   @override
   Stream<MainScreenState> mapEventToState(MainScreenEvent event) async* {
     if (event is LoadWallets) {
-      accessToken = await AuthRepository().login("testuser", "testuser");
-      CurrentUserSingleton().setAccessTokenAsync(accessToken);
       wallets = await WalletsRepository().getWallets();
       yield WalletsLoaded();
     }

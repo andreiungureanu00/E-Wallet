@@ -40,7 +40,9 @@ class CurrentUserSingleton {
     return _currentUser;
   }
 
-  logout() {
+  logout() async {
     setAccessTokenAsync(null);
+//    setCurrentUserAsync(null);
+    await SharedPreference().logOutUser();
   }
 }

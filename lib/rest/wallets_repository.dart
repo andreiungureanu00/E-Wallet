@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -11,7 +10,6 @@ import 'package:e_wallet/rest/StringConfigs.dart';
 import 'package:e_wallet/rest/auth_repository.dart';
 
 class WalletsRepository {
-
   static final WalletsRepository _singleton = new WalletsRepository._internal();
 
   factory WalletsRepository() {
@@ -28,8 +26,9 @@ class WalletsRepository {
 
     accessToken = CurrentUserSingleton().getAccessToken();
 
-    dio.interceptors.add(
-        DioCacheManager(CacheConfig(baseUrl: "${StringConfigs.baseApiUrl}/wallets/")).interceptor);
+    dio.interceptors.add(DioCacheManager(
+            CacheConfig(baseUrl: "${StringConfigs.baseApiUrl}/wallets/"))
+        .interceptor);
 
     response = await dio.get("${StringConfigs.baseApiUrl}/wallets/",
         options: buildCacheOptions(Duration(days: 7),
@@ -39,7 +38,6 @@ class WalletsRepository {
               HttpHeaders.authorizationHeader: "Bearer $accessToken"
             })));
 
-    print(response.data.toString());
     for (var i in response.data) {
       Wallet wallet = Wallet.fromJson(i);
       wallet.currencyName = await getCurrencyById(wallet.currency);
@@ -54,12 +52,12 @@ class WalletsRepository {
     Dio dio = new Dio();
     String accessToken;
 
-    dio.interceptors.add(DioCacheManager(
-        CacheConfig(baseUrl: "${StringConfigs.baseApiUrl}/banks/coin/?format=json&page_size=20"))
+    dio.interceptors.add(DioCacheManager(CacheConfig(
+            baseUrl:
+                "${StringConfigs.baseApiUrl}/banks/coin/?format=json&page_size=20"))
         .interceptor);
 
     accessToken = CurrentUserSingleton().getAccessToken();
-    print(accessToken);
 
     Response response = await dio.get(
         "${StringConfigs.baseApiUrl}/banks/coin/?format=json&page_size=20");
@@ -81,9 +79,15 @@ class WalletsRepository {
     accessToken = CurrentUserSingleton().getAccessToken();
 
     transactions = List();
-    dio.interceptors.add(DioCacheManager(CacheConfig(baseUrl: "${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/")).interceptor);
-    response = await dio.get("${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/",
-        options: buildCacheOptions(Duration(days: 7), maxStale: Duration(days: 10), forceRefresh: true,
+    dio.interceptors.add(DioCacheManager(CacheConfig(
+            baseUrl:
+                "${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/"))
+        .interceptor);
+    response = await dio.get(
+        "${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/",
+        options: buildCacheOptions(Duration(days: 7),
+            maxStale: Duration(days: 10),
+            forceRefresh: true,
             options: Options(headers: {
               HttpHeaders.authorizationHeader: "Bearer $accessToken"
             })));
@@ -110,8 +114,6 @@ class WalletsRepository {
         data: body,
         options: Options(
             headers: {HttpHeaders.authorizationHeader: "Bearer $accessToken"}));
-
-    print(response.data.toString());
   }
 
   Future<void> newTransaction(int walletID, double amount, int currency) async {
@@ -121,14 +123,11 @@ class WalletsRepository {
     Map<String, dynamic> body = {"amount": amount, "currency": currency};
     accessToken = CurrentUserSingleton().getAccessToken();
 
-    String urlTransaction = "${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/";
+    String urlTransaction =
+        "${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/";
     var response = await dio.post(urlTransaction,
         data: body,
         options: Options(
             headers: {HttpHeaders.authorizationHeader: "Bearer $accessToken"}));
-
-    print("Raspund = " + response.data.toString());
-
   }
-
 }

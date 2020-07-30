@@ -27,6 +27,8 @@ class RegisterRepository {
     String urlRegister = "${StringConfigs.baseApiUrl}/users/register/";
     var response;
     response = await dio.post(urlRegister, data: body);
+
+    print(response.data.toString());
   }
 
   Future<void> createUserOnFirebase(String email, String password) async {

@@ -213,7 +213,7 @@ class _MainScreenState extends State<MainScreen> {
                       )
                     ],
                   ),
-                  SizedBox(width: 170),
+                  SizedBox(width: 150),
                   Image.network(
                     "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmaxcdn.icons8.com%2FShare%2Ficon%2Fnolan%2FFinance%2Fbank_cards1600.png&f=1&nofb=1",
                     width: 50,

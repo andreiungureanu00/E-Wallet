@@ -1,5 +1,8 @@
 import 'package:e_wallet/AuthScreen/sign_up_page_screen.dart';
+import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
+import 'package:e_wallet/CurrentUserSingleton/shared_preferences.dart';
 import 'package:e_wallet/MainScreen/main_screen.dart';
+import 'package:e_wallet/main.dart';
 import 'package:e_wallet/models/user.dart';
 import 'package:e_wallet/rest/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,10 +18,58 @@ class MyLoginPage extends StatefulWidget {
 }
 
 class _MyLoginPageState extends State<MyLoginPage> {
-  User currentUser;
+  var currentUser;
+  String email, password, username;
   bool showProgress;
   bool isSignIn = false, isSignInFacebook = false, isSignInGoogle = false;
   final _auth = FirebaseAuth.instance;
+  var accessToken;
+  int authCode;
+
+  @override
+  void initState() {
+    getData().then((value) => null);
+    super.initState();
+  }
+
+  Future<void> getData() async {
+    await CurrentUserSingleton().getAccessTokenAsync();
+    accessToken = CurrentUserSingleton().getAccessToken();
+    await CurrentUserSingleton().getCurrentUserAsync();
+    currentUser = CurrentUserSingleton().getCurrentUser();
+
+    if (currentUser != null) {
+      authCode = currentUser.authCode;
+
+      if (authCode == 1) {
+        setState(() {
+          isSignInFacebook = true;
+          isSignInGoogle = false;
+          isSignIn = false;
+        });
+      } else if (authCode == 2) {
+        setState(() {
+          isSignInGoogle = true;
+          isSignInFacebook = false;
+          isSignIn = false;
+        });
+      } else if (authCode == 3) {
+        setState(() {
+          isSignIn = true;
+          isSignInFacebook = false;
+          isSignInGoogle = false;
+        });
+      }
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainScreen(currentUser),
+          ));
+    } else {
+      print("nu sunt logat");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,13 +113,12 @@ class _MyLoginPageState extends State<MyLoginPage> {
                       height: 120.0,
                     ),
                     TextField(
-                      keyboardType: TextInputType.emailAddress,
                       textAlign: TextAlign.center,
                       onChanged: (value) {
-                        currentUser.email = value; // get value from TextField
+                        username = value; // get value from TextField
                       },
                       decoration: InputDecoration(
-                          hintText: "Enter your Email",
+                          hintText: "Enter your email",
                           border: OutlineInputBorder(
                               borderRadius:
                                   BorderRadius.all(Radius.circular(32.0)))),
@@ -80,7 +130,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                       obscureText: true,
                       textAlign: TextAlign.center,
                       onChanged: (value) {
-                        currentUser.password = value; //get value from textField
+                        password = value; //get value from textField
                       },
                       decoration: InputDecoration(
                           hintText: "Enter your Password",
@@ -116,48 +166,50 @@ class _MyLoginPageState extends State<MyLoginPage> {
                         borderRadius: BorderRadius.circular(32.0),
                         child: MaterialButton(
                           onPressed: () async {
-                            setState(() {
-                              showProgress = true;
-                            });
-                            try {
-                              if (isSignIn == false) {
-                                final newUser =
-                                    await _auth.signInWithEmailAndPassword(
-                                        email: currentUser.email,
-                                        password: currentUser.password);
+                            if (isSignIn == false) {
+                              AuthRepository()
+                                  .loginWithCredentials(username, password);
 
-                                if (newUser != null) {
-                                  Fluttertoast.showToast(
-                                      msg: "Login Successfull",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER,
-                                      timeInSecForIosWeb: 1,
-                                      backgroundColor: Colors.blueAccent,
-                                      textColor: Colors.white,
-                                      fontSize: 16.0);
-                                  setState(() {
-                                    showProgress = false;
-                                  });
+                              setState(() {
+                                showProgress = true;
+                              });
 
-                                  var photoUrl =
-                                      "https://scontent.fkiv4-1.fna.fbcdn.net/v/t1.30497-1/s480x480/84628273_176159830277856_972693363922829312_n.jpg?_nc_cat=1&_nc_sid=12b3be&_nc_ohc=EiCVFZsOtR0AX8bAVby&_nc_ht=scontent.fkiv4-1.fna&_nc_tp=7&oh=4ca52c73ce307020f39f4731f487731d&oe=5F3BA3AA";
+                              setState(() {
+                                isSignInGoogle = false;
+                                isSignIn = true;
+                                isSignInFacebook = false;
+                              });
 
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            MainScreen(currentUser),
-                                      ));
-                                }
-                              } else {
-                                await _auth.signOut();
-                              }
-                            } catch (e) {}
+                              Fluttertoast.showToast(
+                                  msg: "Login Successfull",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.blueAccent,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                              setState(() {
+                                showProgress = false;
+                              });
+
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        MainScreen(currentUser),
+                                  ));
+                            } else {
+                              _auth.signOut();
+                              await CurrentUserSingleton().logout();
+                              setState(() {
+                                isSignIn = false;
+                              });
+                            }
                           },
                           minWidth: 200.0,
                           height: 25.0,
                           child: Text(
-                            "Login",
+                            isSignIn ? "Logout" : "Login",
                             style: TextStyle(
                                 fontWeight: FontWeight.w500, fontSize: 20.0),
                           ),
@@ -189,14 +241,15 @@ class _MyLoginPageState extends State<MyLoginPage> {
                             children: [
                                 SizedBox(height: 60),
                                 FacebookSignInButton(
-                                  onPressed: () {
-                                    AuthRepository()
-                                        .logInWithFacebook(currentUser);
+                                  onPressed: () async {
+                                    currentUser = await AuthRepository()
+                                        .logInWithFacebook();
                                     setState(() {
                                       isSignInFacebook = true;
                                       isSignInGoogle = false;
                                       isSignIn = false;
                                     });
+                                    print(currentUser.email);
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -243,8 +296,9 @@ class _MyLoginPageState extends State<MyLoginPage> {
                         : Center(
                             child: FlatButton(
                               color: Color(0xffE1E9E5),
-                              onPressed: () {
-                                AuthRepository().logInWithGoogle(currentUser);
+                              onPressed: () async {
+                                currentUser =
+                                    await AuthRepository().logInWithGoogle();
                                 setState(() {
                                   isSignInGoogle = true;
                                   isSignInFacebook = false;

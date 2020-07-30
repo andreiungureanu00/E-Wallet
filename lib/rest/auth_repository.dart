@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
 import 'package:e_wallet/models/user.dart';
 import 'package:e_wallet/rest/StringConfigs.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -41,23 +44,28 @@ class AuthRepository {
 
     String urlToken = "${StringConfigs.baseApiUrl}/users/token-obtain/";
 
-    var response = await dio.post(urlToken, data: body);
+    var response = await dio.post(
+      urlToken,
+      data: body,
+    );
 
     return response.data["access"].toString();
   }
 
-   void logInWithFacebook(User currentUser) async {
+  Future<User> logInWithFacebook() async {
     User currentUser;
     var result = await facebookLogin.logIn(['email']);
+    String accessToken;
 
     if (result.status == FacebookLoginStatus.loggedIn) {
       try {
-//        var facebookLoginResult = await facebookLogin.logIn(['email']);
-        var token = result.accessToken.token;
+        var facebookLoginResult = await facebookLogin.logIn(['email']);
+//        var token = result.accessToken.token;
         var graphResponse = await http.get(
-            'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email,picture.width(400)&access_token=${token}');
+            'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email,picture.width(400)&access_token=${facebookLoginResult.accessToken.token}');
 
         var profile = json.decode(graphResponse.body);
+        print(profile.toString());
 
         currentUser = User(
             profile["first_name"],
@@ -65,7 +73,12 @@ class AuthRepository {
             profile["email"],
             profile["name"],
             profile["password"],
-            profile["picture"]["data"]["url"]);
+            profile["picture"]["data"]["url"],
+            1);
+
+        accessToken = await AuthRepository().login("testuser", "testuser");
+        await CurrentUserSingleton().setAccessTokenAsync(accessToken);
+        await CurrentUserSingleton().setCurrentUserAsync(currentUser);
       } on PlatformException catch (e) {
         print(e.toString());
       }
@@ -75,14 +88,17 @@ class AuthRepository {
       print("Error");
     }
 
+    return currentUser;
   }
 
   void logoutFromFacebook() async {
     facebookLogin.logOut();
+    await CurrentUserSingleton().logout();
   }
 
-  void logInWithGoogle(User currentUser) async {
+  Future<User> logInWithGoogle() async {
     User currentUser;
+    String accessToken;
     GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
     GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
@@ -96,14 +112,62 @@ class AuthRepository {
 
     if (_user != null) {
       currentUser = User(_user.displayName, _user.displayName, _user.email,
-          _user.email, "", _user.photoUrl);
+          _user.email, "password", _user.photoUrl, 2);
+      accessToken = await AuthRepository().login("testuser", "testuser");
+      await CurrentUserSingleton().setAccessTokenAsync(accessToken);
+      await CurrentUserSingleton().setCurrentUserAsync(currentUser);
     }
 
+    return currentUser;
   }
 
   Future<void> googleSignout() async {
     await _auth.signOut().then((onValue) {
       _googleSignIn.signOut();
     });
+    await CurrentUserSingleton().logout();
+  }
+
+  Future<User> getUserFromServer(String accessToken) async {
+    Dio dio = new Dio();
+    Response response;
+    User currentUser;
+
+    dio.interceptors.add(DioCacheManager(
+            CacheConfig(baseUrl: "${StringConfigs.baseApiUrl}/users/profile/"))
+        .interceptor);
+
+    response = await dio.get("${StringConfigs.baseApiUrl}/users/profile",
+        options: buildCacheOptions(Duration(days: 7),
+            maxStale: Duration(days: 10),
+            forceRefresh: true,
+            options: Options(headers: {
+              HttpHeaders.authorizationHeader: "Bearer $accessToken"
+            })));
+
+    User user = User.fromJson(response.data);
+
+    return user;
+  }
+
+  Future<void> loginWithCredentials(String username, String password) async {
+    String accessToken;
+    User currentUser;
+
+    accessToken = await AuthRepository()
+        .login(username, password);
+
+    await CurrentUserSingleton().setAccessTokenAsync(accessToken);
+    currentUser = await AuthRepository().getUserFromServer(accessToken);
+
+    var photoUrl =
+        "https://scontent.fkiv4-1.fna.fbcdn.net/v/t1.30497-1/s480x480/84628273_176159830277856_972693363922829312_n.jpg?_nc_cat=1&_nc_sid=12b3be&_nc_ohc=EiCVFZsOtR0AX8bAVby&_nc_ht=scontent.fkiv4-1.fna&_nc_tp=7&oh=4ca52c73ce307020f39f4731f487731d&oe=5F3BA3AA";
+
+    currentUser.photoUrl = photoUrl;
+    currentUser.authCode = 3;
+
+    CurrentUserSingleton().setCurrentUserAsync(currentUser);
+
+
   }
 }

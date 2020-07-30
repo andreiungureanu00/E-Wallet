@@ -17,7 +17,7 @@ class SharedPreference {
     prefs.setString('accessToken', accessToken);
   }
 
-  Future<String> getAccessToken() async {
+  getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String jwt = prefs.getString('accessToken');
     return jwt;
@@ -25,14 +25,20 @@ class SharedPreference {
 
   setCurrentUser(User user) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('current_user', user.toJson().toString());
+    prefs.setString('current_user', json.encode(user.toJson()).toString());
   }
 
   Future<User> getCurrentUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.get("current_user") != null) {
-      return User.fromJson(jsonDecode(prefs.getString('current_user')));
+      String user = prefs.getString('current_user');
+      return User.fromJson(json.decode(user));
     }
     return null;
+  }
+
+  logOutUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove("current_user");
   }
 }

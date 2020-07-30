@@ -134,7 +134,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           BorderRadius.all(Radius.circular(32.0)))),
                 ),
                 SizedBox(
-                  height: 100.0,
+                  height: 60.0,
                 ),
                 Material(
                   elevation: 5,
@@ -149,12 +149,6 @@ class _SignUpPageState extends State<SignUpPage> {
                         await RegisterRepository().createUser(
                             firstName, lastName, email, password, username);
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  MyLoginPage()),
-                        );
                       } catch (e) {}
                     },
                     minWidth: 200.0,

@@ -35,7 +35,6 @@ class BankInfoBloc extends Bloc<BankInfoEvents, BankInfoStates> {
   @override
   Stream<BankInfoStates> mapEventToState(BankInfoEvents event) async* {
     if (event is LoadBankInfo) {
-      print("Banca " + bank.id.toString());
       coins = await BankRepository().getAvailableCoins(bank.id);
       yield BankInfoLoaded();
     }
