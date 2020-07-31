@@ -83,6 +83,7 @@ class WalletsRepository {
             baseUrl:
                 "${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/"))
         .interceptor);
+
     response = await dio.get(
         "${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/",
         options: buildCacheOptions(Duration(days: 7),
