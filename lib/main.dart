@@ -1,5 +1,5 @@
 
-import 'package:e_wallet/AuthScreen/login_page_screen.dart';
+import 'file:///D:/Android%20Projects/new_e_wallet/E-Wallet-master/lib/AuthScreen/Login/login_page_screen.dart';
 import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
 import 'package:e_wallet/MainScreen/main_screen.dart';
 import 'package:e_wallet/ReportsScreen/reports_screen.dart';

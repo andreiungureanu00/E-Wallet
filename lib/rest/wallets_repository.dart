@@ -114,6 +114,7 @@ class WalletsRepository {
         data: body,
         options: Options(
             headers: {HttpHeaders.authorizationHeader: "Bearer $accessToken"}));
+    print(response.data.toString());
   }
 
   Future<void> newTransaction(int walletID, double amount, int currency) async {
@@ -123,11 +124,17 @@ class WalletsRepository {
     Map<String, dynamic> body = {"amount": amount, "currency": currency};
     accessToken = CurrentUserSingleton().getAccessToken();
 
+    print(accessToken);
+    print("currency = " + currency.toString());
+
     String urlTransaction =
         "${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/";
+
     var response = await dio.post(urlTransaction,
         data: body,
         options: Options(
             headers: {HttpHeaders.authorizationHeader: "Bearer $accessToken"}));
+
+    print(response.data.toString());
   }
 }

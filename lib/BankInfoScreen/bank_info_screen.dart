@@ -1,6 +1,5 @@
 import 'package:e_wallet/BankInfoScreen/bloc/bank_info_bloc.dart';
 import 'package:e_wallet/BankInfoScreen/bloc/bank_info_states.dart';
-import 'package:e_wallet/Database/coins_database.dart';
 import 'package:e_wallet/ReportsScreen/reports_screen.dart';
 import 'package:e_wallet/models/bank.dart';
 import 'package:flutter/cupertino.dart';
@@ -154,15 +153,6 @@ class _BankInfoPageState extends State<BankInfoPage> {
                       children: [
                         Column(
                           children: [
-                            RaisedButton(
-                              child: Text("Eu is aici"),
-                                onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ReportsScreen(data[index].id),
-                                  ));
-                            }),
                             InkWell(
                               child: Container(
                                 child: Text(
@@ -174,9 +164,6 @@ class _BankInfoPageState extends State<BankInfoPage> {
                                   ),
                                 ),
                               ),
-                              onTap: () {
-                                CoinsDatabase().newCoin(data[index]);
-                              },
                             ),
                             Container(
                               child: Text(
@@ -229,8 +216,23 @@ class _BankInfoPageState extends State<BankInfoPage> {
                                 ),
                               ),
                             ),
+                            FlatButton(
+                                child: Text(
+                                    "Reports",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ReportsScreen(data[index].id),
+                                      ));
+                                }),
                             SizedBox(
-                              height: 30,
+                              height: 20,
                             )
                           ],
                         ),

@@ -7,7 +7,7 @@ import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
 import 'package:e_wallet/models/user.dart';
 import 'package:e_wallet/rest/StringConfigs.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -23,6 +23,7 @@ class AuthRepository {
   FirebaseUser _user;
   bool isSignInGoogle = false;
   bool isSignInFacebook = false;
+  var facebookLogin;
 
   static final AuthRepository _singleton = new AuthRepository._internal();
 
@@ -33,7 +34,6 @@ class AuthRepository {
   AuthRepository._internal();
 
   bool isSignIn = false;
-  var facebookLogin = new FacebookLogin();
   GoogleSignIn _googleSignIn = new GoogleSignIn(
       scopes: ['email', 'https://www.googleapis.com/auth/contacts.readonly']);
 
@@ -54,19 +54,20 @@ class AuthRepository {
 
   Future<User> logInWithFacebook() async {
     User currentUser;
+    facebookLogin = FacebookLogin();
     var result = await facebookLogin.logIn(['email']);
     String accessToken;
 
     if (result.status == FacebookLoginStatus.loggedIn) {
+
+      print("m-am logat");
       try {
-        var facebookLoginResult = await facebookLogin.logIn(['email']);
-//        var token = result.accessToken.token;
+        var token = result.accessToken.token;
         var graphResponse = await http.get(
-            'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email,picture.width(400)&access_token=${facebookLoginResult.accessToken.token}');
+            'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email,picture.width(400)&access_token=${token}');
 
         var profile = json.decode(graphResponse.body);
         print(profile.toString());
-
         currentUser = User(
             profile["first_name"],
             profile["last_name"],
@@ -91,8 +92,44 @@ class AuthRepository {
     return currentUser;
   }
 
+  Future < FirebaseUser > facebookLogin1(BuildContext context) async {
+    FirebaseUser currentUser;
+    // fbLogin.loginBehavior = FacebookLoginBehavior.webViewOnly;
+    // if you remove above comment then facebook login will take username and pasword for login in Webview
+    try {
+      final FacebookLoginResult facebookLoginResult = await facebookLogin
+          .logInWithReadPermissions(['email', 'public_profile']);
+      if (facebookLoginResult.status == FacebookLoginStatus.loggedIn) {
+        FacebookAccessToken facebookAccessToken = facebookLoginResult
+            .accessToken;
+        final AuthCredential credential = FacebookAuthProvider.getCredential(
+            accessToken: facebookAccessToken.token);
+        final FirebaseUser user = (await _auth.signInWithCredential(credential)).user;
+        assert(user.email != null);
+        assert(user.displayName != null);
+        assert(!user.isAnonymous);
+        assert(await user.getIdToken() != null);
+        currentUser = await _auth.currentUser();
+        assert(user.uid == currentUser.uid);
+        return currentUser;
+      }
+    }
+    catch (e) {
+      print(e);
+      return currentUser;
+    }
+  }
+
+  Future <bool> facebookLoginout() async {
+    await _auth.signOut();
+    await facebookLogin.logOut();
+    return true;
+  }
+
+
   void logoutFromFacebook() async {
     facebookLogin.logOut();
+    await CurrentUserSingleton().setAccessTokenAsync(null);
     await CurrentUserSingleton().logout();
   }
 
@@ -154,8 +191,7 @@ class AuthRepository {
     String accessToken;
     User currentUser;
 
-    accessToken = await AuthRepository()
-        .login(username, password);
+    accessToken = await AuthRepository().login(username, password);
 
     await CurrentUserSingleton().setAccessTokenAsync(accessToken);
     currentUser = await AuthRepository().getUserFromServer(accessToken);
@@ -167,7 +203,5 @@ class AuthRepository {
     currentUser.authCode = 3;
 
     CurrentUserSingleton().setCurrentUserAsync(currentUser);
-
-
   }
 }

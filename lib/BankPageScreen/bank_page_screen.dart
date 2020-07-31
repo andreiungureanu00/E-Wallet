@@ -1,7 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:e_wallet/BankPageScreen/bloc/bank_page_bloc.dart';
 import 'package:e_wallet/BankPageScreen/bloc/bank_page_states.dart';
-import 'package:e_wallet/Database/banks_database.dart';
 import 'package:e_wallet/models/bank.dart';
 import 'package:e_wallet/models/coin.dart';
 import 'package:flutter/cupertino.dart';
@@ -73,126 +72,123 @@ class _BankPageState extends State<BankPage> {
                 children: [
                   Expanded(
                       child: ListView.builder(
-                        itemCount: _bankPageBloc.banks.length,
-                        itemBuilder: (BuildContext context, int index) {
-//                          BanksDatabase().newBank(_bankPageBloc.banks[index]);
-                        BanksDatabase().getBanksFromDb();
-                          if (_bankPageBloc.banks != null) {
-                            return Container(
-                                child: Column(
-                                  children: <Widget>[
-                                    SizedBox(height: 20),
-                                    Card(
-                                      color: Colors.transparent,
-                                      child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Color(0xffE1E9E5),
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Colors.blue,
-                                                Colors.red,
-                                              ],
-                                            ),
-                                            borderRadius: BorderRadius.circular(7),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                            children: [
-                                              Column(
-                                                children: [
-                                                  Container(
-                                                    margin: EdgeInsets.only(top: 10),
-                                                    child: Text(
-                                                      _bankPageBloc
-                                                          .banks[index].registered_name,
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 17,
-                                                        fontFamily: 'RobotMono',
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    margin: EdgeInsets.only(top: 10),
-                                                    child: Text(
-                                                      _bankPageBloc
-                                                          .banks[index].short_name,
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 12,
-                                                        fontFamily: 'RobotMono',
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    margin: EdgeInsets.only(top: 10),
-                                                    child: Text(
-                                                      _bankPageBloc
-                                                          .banks[index].website,
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 12,
-                                                        fontFamily: 'RobotMono',
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              InkWell(
-                                                child: ColorizeAnimatedTextKit(
-                                                    onTap: () {
-//                                                      BanksDatabase().newBank(_bankPageBloc.banks[index]);
-                                                      Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                BankInfoPage(
-                                                                    _bankPageBloc
-                                                                        .banks[index]),
-                                                          ));
-                                                    },
-                                                    repeatForever: true,
-                                                    text: [
-                                                      "Cursul Valutar",
-                                                    ],
-                                                    textStyle: TextStyle(
-                                                        fontSize: 25,
-                                                        fontFamily: "Horizon"),
-                                                    colors: [
-                                                      Colors.white,
-                                                      Colors.black,
-                                                      Colors.black,
-                                                      Colors.white,
-                                                    ],
-                                                    textAlign: TextAlign.start,
-                                                    alignment: AlignmentDirectional
-                                                        .topStart // or Alignment.topLeft
-                                                ),
-                                                onTap: () {
-                                                  print(_bankPageBloc.banks[index].id
-                                                      .toString());
-                                                  Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              BankInfoPage(_bankPageBloc
-                                                                  .banks[index])));
-                                                },
-                                              ),
-                                            ],
-                                          )),
+                    itemCount: _bankPageBloc.banks.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      if (_bankPageBloc.banks != null) {
+                        return Container(
+                            child: Column(
+                          children: <Widget>[
+                            SizedBox(height: 20),
+                            Card(
+                              color: Colors.transparent,
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0xffE1E9E5),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.blue,
+                                        Colors.red,
+                                      ],
                                     ),
-                                  ],
-                                ));
-                          } else {
-                            return Center(child: CircularProgressIndicator());
-                          }
-                        },
-                      ))
+                                    borderRadius: BorderRadius.circular(7),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Container(
+                                            margin: EdgeInsets.only(top: 10),
+                                            child: Text(
+                                              _bankPageBloc
+                                                  .banks[index].registered_name,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 17,
+                                                fontFamily: 'RobotMono',
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.only(top: 10),
+                                            child: Text(
+                                              _bankPageBloc
+                                                  .banks[index].short_name,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontFamily: 'RobotMono',
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.only(top: 10),
+                                            child: Text(
+                                              _bankPageBloc
+                                                  .banks[index].website,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontFamily: 'RobotMono',
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      InkWell(
+                                        child: ColorizeAnimatedTextKit(
+                                            onTap: () {
+//                                                      BanksDatabase().newBank(_bankPageBloc.banks[index]);
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        BankInfoPage(
+                                                            _bankPageBloc
+                                                                .banks[index]),
+                                                  ));
+                                            },
+                                            repeatForever: true,
+                                            text: [
+                                              "Cursul Valutar",
+                                            ],
+                                            textStyle: TextStyle(
+                                                fontSize: 25,
+                                                fontFamily: "Horizon"),
+                                            colors: [
+                                              Colors.white,
+                                              Colors.black,
+                                              Colors.black,
+                                              Colors.white,
+                                            ],
+                                            textAlign: TextAlign.start,
+                                            alignment: AlignmentDirectional
+                                                .topStart // or Alignment.topLeft
+                                            ),
+                                        onTap: () {
+                                          print(_bankPageBloc.banks[index].id
+                                              .toString());
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      BankInfoPage(_bankPageBloc
+                                                          .banks[index])));
+                                        },
+                                      ),
+                                    ],
+                                  )),
+                            ),
+                          ],
+                        ));
+                      } else {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                    },
+                  ))
                 ],
               );
-            }
-            else {
+            } else {
               return CircularProgressIndicator();
             }
           }),

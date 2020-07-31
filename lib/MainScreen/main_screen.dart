@@ -1,8 +1,8 @@
 import 'package:e_wallet/BankPageScreen/bank_page_screen.dart';
 import 'package:e_wallet/MainScreen/bloc/main_screen_bloc.dart';
 import 'package:e_wallet/MainScreen/bloc/main_screen_state.dart';
-import 'package:e_wallet/WalletsScreen/wallet_create.dart';
-import 'package:e_wallet/WalletsScreen/wallet_transactions.dart';
+import 'file:///D:/Android%20Projects/new_e_wallet/E-Wallet-master/lib/WalletsScreen/WalletCreate/wallet_create.dart';
+import 'file:///D:/Android%20Projects/new_e_wallet/E-Wallet-master/lib/WalletsScreen/WalletTransactions/wallet_transactions.dart';
 import 'package:e_wallet/models/user.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -213,7 +213,7 @@ class _MainScreenState extends State<MainScreen> {
                       )
                     ],
                   ),
-                  SizedBox(width: 150),
+                  SizedBox(width: 130),
                   Image.network(
                     "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmaxcdn.icons8.com%2FShare%2Ficon%2Fnolan%2FFinance%2Fbank_cards1600.png&f=1&nofb=1",
                     width: 50,
@@ -351,7 +351,7 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget walletCard(data, index) {
     return Container(
-      width: 400,
+      width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(color: Color(0xffE1E9E5)),
       child: Container(
         child: Column(
@@ -420,7 +420,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(width: 50),
+                    SizedBox(width: 20),
                     Column(
                       children: [
                         Text(
