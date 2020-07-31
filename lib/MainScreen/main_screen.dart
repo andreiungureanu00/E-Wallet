@@ -44,10 +44,13 @@ class _MainScreenState extends State<MainScreen> {
         ScrollDirection.reverse) {}
   }
 
-  _moveUp(int index) {
-    scrollController.animateTo(index * 400.0,
-        duration: new Duration(seconds: 2), curve: Curves.ease);
-    index = 0;
+  _moveUp() {
+    scrollController.animateTo(scrollController.offset + 380,
+        curve: Curves.linear, duration: Duration(milliseconds: 700));
+  }
+  _moveDown() {
+    scrollController.animateTo(scrollController.offset - 380,
+        curve: Curves.linear, duration: Duration(milliseconds: 700));
   }
 
   @override
@@ -126,7 +129,9 @@ class _MainScreenState extends State<MainScreen> {
                 return SizedBox(
                   height: 270.0,
                   child: ListView.builder(
+                    primary: false,
                     scrollDirection: Axis.horizontal,
+                    physics: const NeverScrollableScrollPhysics(),
                     controller: scrollController,
                     shrinkWrap: true,
                     itemCount: _mainScreenBloc.wallets.length,
@@ -140,15 +145,6 @@ class _MainScreenState extends State<MainScreen> {
                                   InkWell(
                                     child: walletCard(
                                         _mainScreenBloc.wallets, index),
-                                    onTap: () {
-//
-
-                                      counter++;
-                                      if (counter >
-                                          _mainScreenBloc.wallets.length - 1)
-                                        counter = 0;
-                                      _moveUp(counter);
-                                    },
                                   )
                                 ],
                               ),
@@ -351,7 +347,7 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget walletCard(data, index) {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: 380,
       decoration: BoxDecoration(color: Color(0xffE1E9E5)),
       child: Container(
         child: Column(
@@ -362,37 +358,59 @@ class _MainScreenState extends State<MainScreen> {
                 horizontal: 20,
                 vertical: 20,
               ),
-              child: Text(
-                "WALLET_ID : " + data[index].id.toString(),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
+              child: Center(
+                child: Text(
+                  "WALLET_ID : " + data[index].id.toString(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
                 ),
-              ),
+              )
             ),
             Container(
               alignment: Alignment.centerLeft,
-              margin: EdgeInsets.symmetric(
-                horizontal: 20,
-              ),
-              child: Text(
-                "Balance: " +
-                    data[index].balance.round().toString() +
-                    " " +
-                    data[index].currencyName,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.normal),
-              ),
-            ),
-            SizedBox(
-              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    iconSize: 50,
+                    icon: Icon(FontAwesomeIcons.caretLeft),
+                    onPressed: () {
+                      if (counter > 0)
+                      counter--;
+                      _moveDown();
+                    },
+                  ),
+                  Text(
+                    "Balance: " +
+                        data[index].balance.round().toString() +
+                        " " +
+                        data[index].currencyName,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.normal),
+                  ),
+                  IconButton(
+                    iconSize: 50,
+                    icon: Icon(FontAwesomeIcons.caretRight),
+                    onPressed: () {
+                      counter++;
+                      if (counter >
+                          _mainScreenBloc.wallets.length - 1)
+                        counter = 0;
+                      _moveUp();
+                    },
+                  ),
+                ],
+              )
             ),
             Container(
                 margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 alignment: Alignment.centerLeft,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Column(
                       children: [
@@ -437,9 +455,6 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ],
                 )),
-            SizedBox(
-              height: 20,
-            )
           ],
         ),
         margin: EdgeInsets.symmetric(
