@@ -21,17 +21,16 @@ class WalletTransactions extends StatefulWidget {
   WalletTransactions(this.walletID, this.currency);
 
   @override
-  WalletTransactionsState createState() => WalletTransactionsState(walletID, currency);
+  WalletTransactionsState createState() =>
+      WalletTransactionsState(walletID, currency);
 }
 
 class WalletTransactionsState extends State<WalletTransactions> {
-
   final int walletID;
   final int currency;
   WalletTransactionsBloc _walletTransactionsBloc;
 
   WalletTransactionsState(this.walletID, this.currency);
-
 
   @override
   void initState() {
@@ -43,143 +42,168 @@ class WalletTransactionsState extends State<WalletTransactions> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Center(
+        appBar: AppBar(
+          title: Center(
+              child: Column(
+            children: [
+              SizedBox(height: 10),
+              Text("Wallet Page",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20))
+            ],
+          )),
+          elevation: 0,
+          actions: <Widget>[
+            IconButton(
+              color: Colors.black,
+              icon: Icon(FontAwesomeIcons.user),
+              onPressed: () {},
+            ),
+          ],
+          backgroundColor: Color(0xffE1E9E5),
+          brightness: Brightness.dark,
+          textTheme: TextTheme(
+            headline5: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
+          iconTheme: IconThemeData(
+            color: Colors.white,
+          ),
+        ),
+        body: SingleChildScrollView(
+          child: Container(
             child: Column(
               children: [
-                SizedBox(height: 10),
-                Text("Wallet Page",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20))
-              ],
-            )),
-        elevation: 0,
-        actions: <Widget>[
-          IconButton(
-            color: Colors.black,
-            icon: Icon(FontAwesomeIcons.user),
-            onPressed: () {},
-          ),
-        ],
-        backgroundColor: Color(0xffE1E9E5),
-        brightness: Brightness.dark,
-        textTheme: TextTheme(
-          headline5: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-          ),
-        ),
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: [
-              BlocBuilder<WalletTransactionsBloc, WalletTransactionsStates>(
-                bloc: _walletTransactionsBloc,
-                builder: (context, state) {
-                  if (_walletTransactionsBloc.transactions == null) {
-                    return Align(
-                      alignment: Alignment.topCenter,
-                      child: CircularProgressIndicator(),
-                    );
-                  } else {
-                    return ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      itemCount: _walletTransactionsBloc.transactions.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Column(
-                          children: [
-                            Card(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  Container(
-                                    child: Icon(
-                                        _walletTransactionsBloc.transactions[index].amount > 0
-                                            ? FontAwesomeIcons.angleDown
-                                            : FontAwesomeIcons.angleUp,
-                                        color: _walletTransactionsBloc.transactions[index].amount > 0
-                                            ? Colors.green
-                                            : Colors.red),
-                                  ),
-                                  SizedBox(width: 20),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      SizedBox(height: 3),
+                BlocBuilder<WalletTransactionsBloc, WalletTransactionsStates>(
+                  bloc: _walletTransactionsBloc,
+                  builder: (context, state) {
+                    if (_walletTransactionsBloc.transactions == null) {
+                      return Column(
+                        children: [
+                          SizedBox(height: MediaQuery.of(context).size.height / 3),
+                          Container(
+                              child: CircularProgressIndicator()
 
-                                    ],
-                                  ),
-                                  SizedBox(width: 170),
-                                  Column(
-                                    children: [
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                      Text(
-                                        _walletTransactionsBloc.transactions[index].amount > 0
-                                            ? "+" +
-                                            _walletTransactionsBloc.transactions[index].amount
-                                                .round()
-                                                .toString() +
-                                            " " +
-                                            _walletTransactionsBloc.transactions[index].currencyName
-                                            : "-" +
-                                            _walletTransactionsBloc.transactions[index].amount
-                                                .round()
-                                                .toString() +
-                                            " " +
-                                            _walletTransactionsBloc.transactions[index].currencyName,
-                                        style: TextStyle(
-                                            color: _walletTransactionsBloc.transactions[index].amount > 0
-                                                ? Colors.green
-                                                : Colors.red,
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 22),
-                                      ),
-                                      SizedBox(
-                                        height: 30,
-                                      )
-                                    ],
-                                  )
-                                ],
-                              ),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.horizontal(
-                                      left: Radius.elliptical(5, 5),
-                                      right: Radius.elliptical(5, 5))),
-                            )
-                          ],
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
-              FlatButton(
-                child: Text(
-                  "New Transaction",
-                  style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.black
-                  ),
+                          )
+                        ],
+                      );
+                    } else {
+                      return ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        itemCount: _walletTransactionsBloc.transactions.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Column(
+                            children: [
+                              Card(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Container(
+                                      child: Icon(
+                                          _walletTransactionsBloc
+                                                      .transactions[index]
+                                                      .amount >
+                                                  0
+                                              ? FontAwesomeIcons.angleDown
+                                              : FontAwesomeIcons.angleUp,
+                                          color: _walletTransactionsBloc
+                                                      .transactions[index]
+                                                      .amount >
+                                                  0
+                                              ? Colors.green
+                                              : Colors.red),
+                                    ),
+                                    SizedBox(width: 20),
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        SizedBox(height: 3),
+                                      ],
+                                    ),
+                                    SizedBox(width: 170),
+                                    Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 20,
+                                        ),
+                                        Text(
+                                          _walletTransactionsBloc
+                                                      .transactions[index]
+                                                      .amount >
+                                                  0
+                                              ? "+" +
+                                                  _walletTransactionsBloc
+                                                      .transactions[index]
+                                                      .amount
+                                                      .round()
+                                                      .toString() +
+                                                  " " +
+                                                  _walletTransactionsBloc
+                                                      .transactions[index]
+                                                      .currencyName
+                                              : "-" +
+                                                  _walletTransactionsBloc
+                                                      .transactions[index]
+                                                      .amount
+                                                      .round()
+                                                      .toString() +
+                                                  " " +
+                                                  _walletTransactionsBloc
+                                                      .transactions[index]
+                                                      .currencyName,
+                                          style: TextStyle(
+                                              color: _walletTransactionsBloc
+                                                          .transactions[index]
+                                                          .amount >
+                                                      0
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 22),
+                                        ),
+                                        SizedBox(
+                                          height: 30,
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.horizontal(
+                                        left: Radius.elliptical(5, 5),
+                                        right: Radius.elliptical(5, 5))),
+                              )
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  },
                 ),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => TransactionsCreate(walletID, currency),
-                  ));
-                },
-              )
-            ],
+                FlatButton(
+                  child: Text(
+                    "New Transaction",
+                    style: TextStyle(fontSize: 20, color: Colors.black),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              TransactionsCreate(walletID, currency),
+                        ));
+                  },
+                )
+              ],
+            ),
           ),
-        ),
-      )
-    );
+        ));
   }
 }

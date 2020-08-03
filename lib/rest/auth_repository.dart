@@ -23,7 +23,7 @@ class AuthRepository {
   FirebaseUser _user;
   bool isSignInGoogle = false;
   bool isSignInFacebook = false;
-  var facebookLogin;
+  var facebookLogin = FacebookLogin();
 
   static final AuthRepository _singleton = new AuthRepository._internal();
 
@@ -54,7 +54,6 @@ class AuthRepository {
 
   Future<User> logInWithFacebook() async {
     User currentUser;
-    facebookLogin = FacebookLogin();
     var result = await facebookLogin.logIn(['email']);
     String accessToken;
 
@@ -91,41 +90,6 @@ class AuthRepository {
 
     return currentUser;
   }
-
-  Future < FirebaseUser > facebookLogin1(BuildContext context) async {
-    FirebaseUser currentUser;
-    // fbLogin.loginBehavior = FacebookLoginBehavior.webViewOnly;
-    // if you remove above comment then facebook login will take username and pasword for login in Webview
-    try {
-      final FacebookLoginResult facebookLoginResult = await facebookLogin
-          .logInWithReadPermissions(['email', 'public_profile']);
-      if (facebookLoginResult.status == FacebookLoginStatus.loggedIn) {
-        FacebookAccessToken facebookAccessToken = facebookLoginResult
-            .accessToken;
-        final AuthCredential credential = FacebookAuthProvider.getCredential(
-            accessToken: facebookAccessToken.token);
-        final FirebaseUser user = (await _auth.signInWithCredential(credential)).user;
-        assert(user.email != null);
-        assert(user.displayName != null);
-        assert(!user.isAnonymous);
-        assert(await user.getIdToken() != null);
-        currentUser = await _auth.currentUser();
-        assert(user.uid == currentUser.uid);
-        return currentUser;
-      }
-    }
-    catch (e) {
-      print(e);
-      return currentUser;
-    }
-  }
-
-  Future <bool> facebookLoginout() async {
-    await _auth.signOut();
-    await facebookLogin.logOut();
-    return true;
-  }
-
 
   void logoutFromFacebook() async {
     facebookLogin.logOut();

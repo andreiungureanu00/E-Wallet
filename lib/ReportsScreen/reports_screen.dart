@@ -60,7 +60,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
             Flexible(
               flex: 8,
               child: _isLoading
-                  ? CircularProgressIndicator()
+                  ? Column(
+                      children: [
+                        SizedBox(height: 300),
+                        Container(child: CircularProgressIndicator())
+                      ],
+                    )
                   : PDFViewer(
                       document: doc,
                     ),

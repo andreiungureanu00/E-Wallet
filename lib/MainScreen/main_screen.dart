@@ -1,3 +1,4 @@
+import 'package:e_wallet/AuthScreen/LoginScreen/login_page_screen.dart';
 import 'package:e_wallet/BankPageScreen/bank_page_screen.dart';
 import 'package:e_wallet/MainScreen/bloc/main_screen_bloc.dart';
 import 'package:e_wallet/MainScreen/bloc/main_screen_state.dart';
@@ -48,6 +49,7 @@ class _MainScreenState extends State<MainScreen> {
     scrollController.animateTo(scrollController.offset + 380,
         curve: Curves.linear, duration: Duration(milliseconds: 700));
   }
+
   _moveDown() {
     scrollController.animateTo(scrollController.offset - 380,
         curve: Curves.linear, duration: Duration(milliseconds: 700));
@@ -73,7 +75,13 @@ class _MainScreenState extends State<MainScreen> {
           IconButton(
             color: Colors.black,
             icon: Icon(FontAwesomeIcons.user),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MyLoginPage(currentUser.authCode),
+                  ));
+            },
           ),
         ],
         backgroundColor: Color(0xffE1E9E5),
@@ -126,178 +134,191 @@ class _MainScreenState extends State<MainScreen> {
             bloc: _mainScreenBloc,
             builder: (context, state) {
               if (_mainScreenBloc.wallets != null) {
-                return SizedBox(
-                  height: 270.0,
-                  child: ListView.builder(
-                    primary: false,
-                    scrollDirection: Axis.horizontal,
-                    physics: const NeverScrollableScrollPhysics(),
-                    controller: scrollController,
-                    shrinkWrap: true,
-                    itemCount: _mainScreenBloc.wallets.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Column(
-                        children: [
-                          Row(
+                return Column(
+                  children: [
+                    SizedBox(
+                      height: 270.0,
+                      child: ListView.builder(
+                        primary: false,
+                        scrollDirection: Axis.horizontal,
+                        physics: const NeverScrollableScrollPhysics(),
+                        controller: scrollController,
+                        shrinkWrap: true,
+                        itemCount: _mainScreenBloc.wallets.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Column(
                             children: [
-                              Column(
+                              Row(
                                 children: [
-                                  InkWell(
-                                    child: walletCard(
-                                        _mainScreenBloc.wallets, index),
-                                  )
+                                  Column(
+                                    children: [
+                                      InkWell(
+                                        child: walletCard(
+                                            _mainScreenBloc.wallets, index),
+                                      )
+                                    ],
+                                  ),
                                 ],
                               ),
+                              FlatButton(
+                                child: Text(
+                                  "Transactions",
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.black),
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            WalletTransactions(
+                                                _mainScreenBloc
+                                                    .wallets[index].id,
+                                                _mainScreenBloc
+                                                    .wallets[index].currency),
+                                      ));
+                                },
+                              ),
                             ],
-                          ),
-                          FlatButton(
-                            child: Text(
-                              "Transactions",
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.black),
+                          );
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      child: Card(
+                        child: Row(
+                          children: [
+                            SizedBox(width: 20),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(height: 3),
+                                Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    Text(
+                                      "Wallet Settings",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.normal,
+                                          fontSize: 16),
+                                    ),
+                                    SizedBox(
+                                      height: 30,
+                                    )
+                                  ],
+                                )
+                              ],
                             ),
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => WalletTransactions(
-                                        _mainScreenBloc.wallets[index].id,
-                                        _mainScreenBloc
-                                            .wallets[index].currency),
-                                  ));
-                            },
+                            SizedBox(width: 130),
+                            Image.network(
+                              "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmaxcdn.icons8.com%2FShare%2Ficon%2Fnolan%2FFinance%2Fbank_cards1600.png&f=1&nofb=1",
+                              width: 50,
+                            )
+                          ],
+                        ),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.horizontal(
+                                left: Radius.elliptical(5, 5),
+                                right: Radius.elliptical(5, 5))),
+                      ),
+                    ),
+                    Container(
+                      margin:
+                          EdgeInsets.symmetric(horizontal: 25, vertical: 25),
+                      alignment: Alignment.topLeft,
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            child: Column(
+                              children: [
+                                SizedBox(height: 20),
+                                InkWell(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Add Wallet",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => WalletCreate(),
+                                        ));
+                                  },
+                                ),
+                                SizedBox(height: 20)
+                              ],
+                            ),
+                            decoration: BoxDecoration(
+                                color: Colors.white70,
+                                borderRadius: BorderRadius.circular(8),
+                                gradient: LinearGradient(
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                    colors: [Colors.pink, Colors.deepOrange])),
                           ),
-                        ],
-                      );
-                    },
-                  ),
-                );
-              } else {
-                return CircularProgressIndicator();
-              }
-            },
-          ),
-          Container(
-            margin: EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 10,
-            ),
-            child: Card(
-              child: Row(
-                children: [
-                  SizedBox(width: 20),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(height: 3),
-                      Column(
-                        children: [
                           SizedBox(
                             height: 20,
                           ),
-                          Text(
-                            "Wallet Settings",
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.normal,
-                                fontSize: 16),
+                          Container(
+                            child: Column(
+                              children: [
+                                SizedBox(height: 20),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    InkWell(
+                                      child: Container(
+                                        child: Text(
+                                          "Make a payment",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                      onTap: () {},
+                                    )
+                                  ],
+                                ),
+                                SizedBox(height: 20)
+                              ],
+                            ),
+                            decoration: BoxDecoration(
+                                color: Colors.white70,
+                                borderRadius: BorderRadius.circular(8),
+                                gradient: LinearGradient(
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                    colors: [Colors.green, Colors.yellow])),
                           ),
-                          SizedBox(
-                            height: 30,
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                  SizedBox(width: 130),
-                  Image.network(
-                    "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmaxcdn.icons8.com%2FShare%2Ficon%2Fnolan%2FFinance%2Fbank_cards1600.png&f=1&nofb=1",
-                    width: 50,
-                  )
-                ],
-              ),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.horizontal(
-                      left: Radius.elliptical(5, 5),
-                      right: Radius.elliptical(5, 5))),
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 25, vertical: 25),
-            alignment: Alignment.topLeft,
-            child: Column(
-              children: <Widget>[
-                Container(
-                  child: Column(
-                    children: [
-                      SizedBox(height: 20),
-                      InkWell(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Add Wallet",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => WalletCreate(),
-                              ));
-                        },
-                      ),
-                      SizedBox(height: 20)
-                    ],
-                  ),
-                  decoration: BoxDecoration(
-                      color: Colors.white70,
-                      borderRadius: BorderRadius.circular(8),
-                      gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                          colors: [Colors.pink, Colors.deepOrange])),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  child: Column(
-                    children: [
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          InkWell(
-                            child: Container(
-                              child: Text(
-                                "Make a payment",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            onTap: () {},
-                          )
                         ],
                       ),
-                      SizedBox(height: 20)
-                    ],
-                  ),
-                  decoration: BoxDecoration(
-                      color: Colors.white70,
-                      borderRadius: BorderRadius.circular(8),
-                      gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                          colors: [Colors.green, Colors.yellow])),
-                ),
-              ],
-            ),
+                    ),
+                    SizedBox(height: 120),
+                  ],
+                );
+              } else {
+                return Column(
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height / 3),
+                    Container(child: CircularProgressIndicator())
+                  ],
+                );
+              }
+            },
           ),
-          SizedBox(height: 120),
         ],
       )),
     );
@@ -353,59 +374,55 @@ class _MainScreenState extends State<MainScreen> {
         child: Column(
           children: <Widget>[
             Container(
-              alignment: Alignment.centerLeft,
-              margin: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 20,
-              ),
-              child: Center(
-                child: Text(
-                  "WALLET_ID : " + data[index].id.toString(),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
+                alignment: Alignment.centerLeft,
+                margin: EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 20,
                 ),
-              )
-            ),
-            Container(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    iconSize: 50,
-                    icon: Icon(FontAwesomeIcons.caretLeft),
-                    onPressed: () {
-                      if (counter > 0)
-                      counter--;
-                      _moveDown();
-                    },
-                  ),
-                  Text(
-                    "Balance: " +
-                        data[index].balance.round().toString() +
-                        " " +
-                        data[index].currencyName,
+                child: Center(
+                  child: Text(
+                    "WALLET_ID : " + data[index].id.toString(),
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.normal),
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
                   ),
-                  IconButton(
-                    iconSize: 50,
-                    icon: Icon(FontAwesomeIcons.caretRight),
-                    onPressed: () {
-                      counter++;
-                      if (counter >
-                          _mainScreenBloc.wallets.length - 1)
-                        counter = 0;
-                      _moveUp();
-                    },
-                  ),
-                ],
-              )
-            ),
+                )),
+            Container(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      iconSize: 50,
+                      icon: Icon(FontAwesomeIcons.caretLeft),
+                      onPressed: () {
+                        if (counter > 0) counter--;
+                        _moveDown();
+                      },
+                    ),
+                    Text(
+                      "Balance: " +
+                          data[index].balance.round().toString() +
+                          " " +
+                          data[index].currencyName,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.normal),
+                    ),
+                    IconButton(
+                      iconSize: 50,
+                      icon: Icon(FontAwesomeIcons.caretRight),
+                      onPressed: () {
+                        counter++;
+                        if (counter > _mainScreenBloc.wallets.length - 1)
+                          counter = 0;
+                        _moveUp();
+                      },
+                    ),
+                  ],
+                )),
             Container(
                 margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 alignment: Alignment.centerLeft,

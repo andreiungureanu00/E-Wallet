@@ -189,7 +189,12 @@ class _BankPageState extends State<BankPage> {
                 ],
               );
             } else {
-              return CircularProgressIndicator();
+              return Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height / 3),
+                  Container(child: CircularProgressIndicator())
+                ],
+              );
             }
           }),
     );

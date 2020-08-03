@@ -25,6 +25,8 @@ class TransactionsCreate extends StatefulWidget {
 class TransactionsCreateState extends State<TransactionsCreate> {
   int walletID;
   int currency;
+  var response;
+
   TransactionCreateBloc _transactionCreateBloc;
 
   TransactionsCreateState(this.walletID, this.currency);

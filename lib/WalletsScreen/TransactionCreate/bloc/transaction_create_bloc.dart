@@ -13,8 +13,8 @@ import 'package:e_wallet/rest/auth_repository.dart';
 import 'package:e_wallet/rest/wallets_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class TransactionCreateBloc extends Bloc<TransactionCreateEvents, TransactionCreateStates> {
-
+class TransactionCreateBloc
+    extends Bloc<TransactionCreateEvents, TransactionCreateStates> {
   int walletID;
   int currency;
   String currencyName;
@@ -27,11 +27,18 @@ class TransactionCreateBloc extends Bloc<TransactionCreateEvents, TransactionCre
   TransactionCreateStates get initialState => TransactionInit();
 
   @override
-  Stream<TransactionCreateStates> mapEventToState(TransactionCreateEvents event) async* {
+  Stream<TransactionCreateStates> mapEventToState(
+      TransactionCreateEvents event) async* {
     if (event is CreateTransaction) {
-      print(walletID.toString() + " " + amount.toString() + " " + currency.toString());
-       WalletsRepository()
-          .newTransaction(walletID, amount, currency);
+      print(walletID.toString() +
+          " " +
+          amount.toString() +
+          " " +
+          currency.toString());
+      var response =
+          await WalletsRepository().newTransaction(walletID, amount, currency);
+
+
       yield TransactionCreated();
     }
     if (event is ReloadTransaction) {

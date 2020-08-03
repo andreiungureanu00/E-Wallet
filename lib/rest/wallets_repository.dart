@@ -7,6 +7,7 @@ import 'package:e_wallet/models/coin.dart';
 import 'package:e_wallet/models/transaction.dart';
 import 'package:e_wallet/models/wallet.dart';
 import 'package:e_wallet/rest/StringConfigs.dart';
+import 'package:e_wallet/rest/app_exceptions.dart';
 import 'package:e_wallet/rest/auth_repository.dart';
 
 class WalletsRepository {
@@ -19,7 +20,7 @@ class WalletsRepository {
   WalletsRepository._internal();
 
   Future<List<Wallet>> getWallets() async {
-    var response;
+    Response response;
     List<Wallet> wallets = List();
     Dio dio = new Dio();
     String accessToken;
@@ -30,18 +31,22 @@ class WalletsRepository {
             CacheConfig(baseUrl: "${StringConfigs.baseApiUrl}/wallets/"))
         .interceptor);
 
-    response = await dio.get("${StringConfigs.baseApiUrl}/wallets/",
-        options: buildCacheOptions(Duration(days: 7),
-            maxStale: Duration(days: 10),
-            forceRefresh: true,
-            options: Options(headers: {
-              HttpHeaders.authorizationHeader: "Bearer $accessToken"
-            })));
+    try {
+      response = await dio.get("${StringConfigs.baseApiUrl}/wallets/",
+          options: buildCacheOptions(Duration(days: 7),
+              maxStale: Duration(days: 10),
+              forceRefresh: true,
+              options: Options(headers: {
+                HttpHeaders.authorizationHeader: "Bearer $accessToken"
+              })));
 
-    for (var i in response.data) {
-      Wallet wallet = Wallet.fromJson(i);
-      wallet.currencyName = await getCurrencyById(wallet.currency);
-      wallets.add(wallet);
+      for (var i in response.data) {
+        Wallet wallet = Wallet.fromJson(i);
+        wallet.currencyName = await getCurrencyById(wallet.currency);
+        wallets.add(wallet);
+      }
+    } on SocketException {
+      throw FetchDataException("No internet connection");
     }
 
     return wallets;
@@ -59,12 +64,16 @@ class WalletsRepository {
 
     accessToken = CurrentUserSingleton().getAccessToken();
 
-    Response response = await dio.get(
-        "${StringConfigs.baseApiUrl}/banks/coin/?format=json&page_size=20");
+    try {
+      Response response = await dio.get(
+          "${StringConfigs.baseApiUrl}/banks/coin/?format=json&page_size=20");
 
-    for (var i in response.data["results"]) {
-      Coin coin = Coin.fromJson(i);
-      if (coin.id == currencyId) coinName = coin.abbr;
+      for (var i in response.data["results"]) {
+        Coin coin = Coin.fromJson(i);
+        if (coin.id == currencyId) coinName = coin.abbr;
+      }
+    } on SocketException {
+      throw FetchDataException("No internet connection");
     }
 
     return coinName;
@@ -84,19 +93,23 @@ class WalletsRepository {
                 "${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/"))
         .interceptor);
 
-    response = await dio.get(
-        "${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/",
-        options: buildCacheOptions(Duration(days: 7),
-            maxStale: Duration(days: 10),
-            forceRefresh: true,
-            options: Options(headers: {
-              HttpHeaders.authorizationHeader: "Bearer $accessToken"
-            })));
+    try {
+      response = await dio.get(
+          "${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/",
+          options: buildCacheOptions(Duration(days: 7),
+              maxStale: Duration(days: 10),
+              forceRefresh: true,
+              options: Options(headers: {
+                HttpHeaders.authorizationHeader: "Bearer $accessToken"
+              })));
 
-    for (var i in response.data) {
-      Transaction transaction = Transaction.fromJson(i);
-      transaction.currencyName = await getCurrencyById(transaction.currency);
-      transactions.add(transaction);
+      for (var i in response.data) {
+        Transaction transaction = Transaction.fromJson(i);
+        transaction.currencyName = await getCurrencyById(transaction.currency);
+        transactions.add(transaction);
+      }
+    } on SocketException {
+      throw FetchDataException("No internet connection");
     }
 
     return transactions;
@@ -105,17 +118,22 @@ class WalletsRepository {
   Future<void> createWallet(int currencyID) async {
     String accessToken;
     Dio dio = new Dio();
-
+    var response;
+    String urlWallet = "${StringConfigs.baseApiUrl}/wallets/";
     accessToken = CurrentUserSingleton().getAccessToken();
 
     Map<String, dynamic> body = {"currency": currencyID};
-    String urlWallet = "${StringConfigs.baseApiUrl}/wallets/";
-    var response;
-    response = await dio.post(urlWallet,
-        data: body,
-        options: Options(
-            headers: {HttpHeaders.authorizationHeader: "Bearer $accessToken"}));
-    print(response.data.toString());
+
+    try {
+      response = await dio.post(urlWallet,
+          data: body,
+          options: Options(headers: {
+            HttpHeaders.authorizationHeader: "Bearer $accessToken"
+          }));
+      print(response.data.toString());
+    } on SocketException {
+      throw FetchDataException("No internet connection");
+    }
   }
 
   Future<void> newTransaction(int walletID, double amount, int currency) async {
@@ -131,11 +149,16 @@ class WalletsRepository {
     String urlTransaction =
         "${StringConfigs.baseApiUrl}/wallets/$walletID/transactions/";
 
-    var response = await dio.post(urlTransaction,
-        data: body,
-        options: Options(
-            headers: {HttpHeaders.authorizationHeader: "Bearer $accessToken"}));
+    try {
+      var response = await dio.post(urlTransaction,
+          data: body,
+          options: Options(headers: {
+            HttpHeaders.authorizationHeader: "Bearer $accessToken"
+          }));
 
-    print(response.data.toString());
+      print(response.data.toString());
+    } on SocketException {
+      throw FetchDataException("No internet connection");
+    }
   }
 }
