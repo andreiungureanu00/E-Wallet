@@ -7,7 +7,6 @@ import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
 import 'package:e_wallet/models/user.dart';
 import 'package:e_wallet/rest/StringConfigs.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -21,8 +20,6 @@ class AuthRepository {
   var profile;
   var graphResponse;
   FirebaseUser _user;
-  bool isSignInGoogle = false;
-  bool isSignInFacebook = false;
   var facebookLogin = FacebookLogin();
 
   static final AuthRepository _singleton = new AuthRepository._internal();

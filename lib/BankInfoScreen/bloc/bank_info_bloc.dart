@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:e_wallet/BankInfoScreen/bank_info_screen.dart';
 import 'package:e_wallet/BankInfoScreen/bloc/bank_info_events.dart';
 import 'package:e_wallet/BankInfoScreen/bloc/bank_info_states.dart';
 import 'package:e_wallet/models/bank.dart';
@@ -11,9 +12,6 @@ import 'package:e_wallet/rest/bank_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BankInfoBloc extends Bloc<BankInfoEvents, BankInfoStates> {
-  @override
-  BankInfoStates get initialState => BankInfoInit();
-
   Dio dio;
   Rate rate;
   List<Coin> coins;
@@ -28,14 +26,20 @@ class BankInfoBloc extends Bloc<BankInfoEvents, BankInfoStates> {
 
   // ignore: non_constant_identifier_names
   int page_size = 20;
+  OnError _event;
 
-  BankInfoBloc(this.bank);
+  BankInfoBloc(this.bank, this._event);
 
+  @override
+  BankInfoStates get initialState => BankInfoInit();
 
   @override
   Stream<BankInfoStates> mapEventToState(BankInfoEvents event) async* {
     if (event is LoadBankInfo) {
-      coins = await BankRepository().getAvailableCoins(bank.id);
+      coins = await BankRepository().getAvailableCoins(bank.id, (error) {
+        print(error.toString());
+        _event.onError(error);
+      });
       yield BankInfoLoaded();
     }
     if (event is ReloadBankInfo) {

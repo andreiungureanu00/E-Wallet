@@ -22,10 +22,11 @@ class TransactionsCreate extends StatefulWidget {
       TransactionsCreateState(walletID, currency);
 }
 
-class TransactionsCreateState extends State<TransactionsCreate> {
+class TransactionsCreateState extends State<TransactionsCreate> with OnError {
   int walletID;
   int currency;
   var response;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
   TransactionCreateBloc _transactionCreateBloc;
 
@@ -33,13 +34,14 @@ class TransactionsCreateState extends State<TransactionsCreate> {
 
   @override
   void initState() {
-    _transactionCreateBloc = TransactionCreateBloc(walletID, currency);
+    _transactionCreateBloc = TransactionCreateBloc(walletID, currency, this);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
         backgroundColor: Color(0xffE1E9E5),
         appBar: AppBar(
           title: Center(
@@ -129,4 +131,22 @@ class TransactionsCreateState extends State<TransactionsCreate> {
           },
         ));
   }
+
+  @override
+  void onError(var errorText) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(errorText),
+        action: SnackBarAction(
+          label: 'Click Me',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+}
+
+abstract class OnError {
+  void onError(var errorText);
 }

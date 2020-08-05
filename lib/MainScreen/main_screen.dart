@@ -1,10 +1,11 @@
 import 'package:e_wallet/AuthScreen/LoginScreen/login_page_screen.dart';
-import 'package:e_wallet/BankPageScreen/bank_page_screen.dart';
+import 'package:e_wallet/MainScreen/MainScreenComponents/left_menu.dart';
 import 'package:e_wallet/MainScreen/bloc/main_screen_bloc.dart';
 import 'package:e_wallet/MainScreen/bloc/main_screen_state.dart';
-import 'file:///D:/Android%20Projects/new_e_wallet/E-Wallet-master/lib/WalletsScreen/WalletCreate/wallet_create.dart';
-import 'file:///D:/Android%20Projects/new_e_wallet/E-Wallet-master/lib/WalletsScreen/WalletTransactions/wallet_transactions.dart';
+import 'package:e_wallet/WalletsScreen/WalletCreate/wallet_create.dart';
+import 'package:e_wallet/WalletsScreen/WalletTransactions/wallet_transactions.dart';
 import 'package:e_wallet/models/user.dart';
+import 'package:e_wallet/rest/wallets_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -12,52 +13,57 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MainScreen extends StatefulWidget {
-  final User currentUser;
-
-  MainScreen(this.currentUser);
-
   @override
-  _MainScreenState createState() => _MainScreenState(this.currentUser);
+  _MainScreenState createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
-  final User currentUser;
+// snack bar windows for exceptions
 
+class _MainScreenState extends State<MainScreen> with MainScreenEvents {
   ScrollController scrollController;
   int counter = 0;
   MainScreenBloc _mainScreenBloc;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
+  User currentUser;
 
-  _MainScreenState(this.currentUser);
 
   @override
   void initState() {
-    _mainScreenBloc = MainScreenBloc();
+    _mainScreenBloc = MainScreenBloc(this);
     _mainScreenBloc.loadWallets();
     scrollController = ScrollController();
     scrollController.addListener(_scrollListener);
+    _mainScreenBloc.reloadWallets();
     super.initState();
   }
 
   _scrollListener() {
     if (scrollController.position.userScrollDirection ==
         ScrollDirection.forward) {}
+    if (scrollController.offset >= scrollController.position.maxScrollExtent &&
+        !scrollController.position.outOfRange) {
+    }
+    if (scrollController.offset <= scrollController.position.minScrollExtent &&
+        !scrollController.position.outOfRange)
+
     if (scrollController.position.userScrollDirection ==
         ScrollDirection.reverse) {}
   }
 
   _moveUp() {
-    scrollController.animateTo(scrollController.offset + 380,
+    scrollController.animateTo(scrollController.offset + MediaQuery.of(context).size.width,
         curve: Curves.linear, duration: Duration(milliseconds: 700));
   }
 
   _moveDown() {
-    scrollController.animateTo(scrollController.offset - 380,
+    scrollController.animateTo(scrollController.offset - MediaQuery.of(context).size.width,
         curve: Curves.linear, duration: Duration(milliseconds: 700));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Center(
             child: Column(
@@ -79,7 +85,7 @@ class _MainScreenState extends State<MainScreen> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MyLoginPage(currentUser.authCode),
+                    builder: (context) => MyLoginPage(),
                   ));
             },
           ),
@@ -99,7 +105,7 @@ class _MainScreenState extends State<MainScreen> {
       drawer: Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(colors: [Colors.white, Colors.black])),
-        child: Drawer(child: leftMenu()),
+        child: Drawer(child: LeftMenu(_mainScreenBloc)),
       ),
       body: pageBody(),
       bottomNavigationBar: BottomNavigationBar(
@@ -154,7 +160,9 @@ class _MainScreenState extends State<MainScreen> {
                                     children: [
                                       InkWell(
                                         child: walletCard(
-                                            _mainScreenBloc.wallets, index),
+                                            _mainScreenBloc.wallets,
+                                            index,
+                                            _mainScreenBloc),
                                       )
                                     ],
                                   ),
@@ -313,7 +321,7 @@ class _MainScreenState extends State<MainScreen> {
                 return Column(
                   children: [
                     SizedBox(height: MediaQuery.of(context).size.height / 3),
-                    Container(child: CircularProgressIndicator())
+                    Container(child: CircularProgressIndicator()),
                   ],
                 );
               }
@@ -324,51 +332,9 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget leftMenu() {
-    return ListView(
-      children: <Widget>[
-        Container(
-          decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [Colors.white70, Colors.red])),
-          child: UserAccountsDrawerHeader(
-            accountEmail: Text(currentUser.email),
-            accountName: Text(currentUser.username),
-            currentAccountPicture: CircleAvatar(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: Image(
-                  fit: BoxFit.fill,
-                  image: NetworkImage(currentUser.photoUrl),
-                ),
-              ),
-            ),
-          ),
-        ),
-        ListTile(
-          title: Text("Wallets"),
-          onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => MainScreen(currentUser)));
-          },
-        ),
-        ListTile(
-          title: Text("Banks"),
-          onTap: () {
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => BankPage()));
-          },
-        ),
-        ListTile(
-          title: Text("Help"),
-          onTap: () {},
-        ),
-      ],
-    );
-  }
-
-  Widget walletCard(data, index) {
+  Widget walletCard(data, index, bloc) {
     return Container(
-      width: 380,
+      width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(color: Color(0xffE1E9E5)),
       child: Container(
         child: Column(
@@ -380,13 +346,30 @@ class _MainScreenState extends State<MainScreen> {
                   vertical: 20,
                 ),
                 child: Center(
-                  child: Text(
-                    "WALLET_ID : " + data[index].id.toString(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "WALLET_ID : " + data[index].id.toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(width: 60),
+                      IconButton(
+                        iconSize: 20,
+                        color: Colors.red, onPressed: () {
+                          WalletsRepository().deleteWallet(data[index].id, onError);
+                      }, icon: Visibility(
+                        visible: data[index].balance == 0 ? true : false,
+                        child: Icon(
+                          FontAwesomeIcons.trash,
+                        ),
+                      )
+                      )
+                    ],
+                  )
                 )),
             Container(
                 alignment: Alignment.centerLeft,
@@ -416,8 +399,7 @@ class _MainScreenState extends State<MainScreen> {
                       icon: Icon(FontAwesomeIcons.caretRight),
                       onPressed: () {
                         counter++;
-                        if (counter > _mainScreenBloc.wallets.length - 1)
-                          counter = 0;
+                        if (counter > bloc.wallets.length - 1) counter = 0;
                         _moveUp();
                       },
                     ),
@@ -478,7 +460,7 @@ class _MainScreenState extends State<MainScreen> {
           horizontal: 25,
         ),
         width: MediaQuery.of(context).size.width,
-        height: 200,
+        height: 220,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
@@ -490,4 +472,28 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
+
+  @override
+  void onError(var errorText) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(errorText),
+        action: SnackBarAction(
+          label: 'Click Me',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+
+  @override
+  void onWalletDelete(walletID) {
+
+  }
+}
+
+abstract class MainScreenEvents {
+  void onError(var errorText);
+  void onWalletDelete(var walletID);
 }

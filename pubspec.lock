@@ -15,6 +15,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.39.15"
+  animated_dialog_box:
+    dependency: "direct main"
+    description:
+      name: animated_dialog_box
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2"
   animated_text_kit:
     dependency: "direct main"
     description:
@@ -246,6 +253,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.1+2"
+  flushbar:
+    dependency: "direct main"
+    description:
+      name: flushbar
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.10.4"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -264,7 +278,7 @@ packages:
       name: flutter_auth_buttons
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.0"
+    version: "0.9.0"
   flutter_bloc:
     dependency: "direct main"
     description:

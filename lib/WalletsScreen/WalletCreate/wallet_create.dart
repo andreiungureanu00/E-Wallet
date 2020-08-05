@@ -16,19 +16,21 @@ class WalletCreate extends StatefulWidget {
   WalletCreateState createState() => WalletCreateState();
 }
 
-class WalletCreateState extends State<WalletCreate> {
+class WalletCreateState extends State<WalletCreate> with WalletCreateEvent {
 
   WalletCreateBloc _walletCreateBloc;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
-    _walletCreateBloc = WalletCreateBloc();
+    _walletCreateBloc = WalletCreateBloc(this);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       backgroundColor: Color(0xffE1E9E5),
       appBar: AppBar(
         title: Center(
@@ -115,4 +117,22 @@ class WalletCreateState extends State<WalletCreate> {
       )
     );
   }
+
+  @override
+  void onError(errorText) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(errorText),
+        action: SnackBarAction(
+          label: 'Click Me',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+}
+
+abstract class WalletCreateEvent {
+  void onError(var errorText);
 }

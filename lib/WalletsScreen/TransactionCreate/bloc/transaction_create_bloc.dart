@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
@@ -20,8 +21,9 @@ class TransactionCreateBloc
   String currencyName;
   int currencyID;
   double amount;
+  OnError _event;
 
-  TransactionCreateBloc(this.walletID, this.currency);
+  TransactionCreateBloc(this.walletID, this.currency, this._event);
 
   @override
   TransactionCreateStates get initialState => TransactionInit();
@@ -35,9 +37,10 @@ class TransactionCreateBloc
           amount.toString() +
           " " +
           currency.toString());
-      var response =
-          await WalletsRepository().newTransaction(walletID, amount, currency);
-
+      var response = await WalletsRepository()
+          .newTransaction(walletID, amount, currency, (error) {
+        _event.onError(error);
+      });
 
       yield TransactionCreated();
     }

@@ -1,20 +1,9 @@
-import 'dart:io';
 
-import 'package:dio/dio.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
-import 'package:e_wallet/MainScreen/bloc/main_screen_state.dart';
-import 'package:e_wallet/WalletsScreen/TransactionCreate/bloc/transaction_create_events.dart';
-import 'package:e_wallet/WalletsScreen/TransactionCreate/bloc/transaction_create_states.dart';
 import 'package:e_wallet/WalletsScreen/TransactionCreate/transaction_create.dart';
-import 'package:e_wallet/WalletsScreen/WalletCreate/bloc/wallet_create_events.dart';
-import 'package:e_wallet/WalletsScreen/WalletCreate/bloc/wallet_create_states.dart';
 import 'package:e_wallet/WalletsScreen/WalletTransactions/bloc/wallet_transactions_events.dart';
 import 'package:e_wallet/WalletsScreen/WalletTransactions/bloc/wallet_transactions_states.dart';
-import 'package:e_wallet/models/coin.dart';
+import 'package:e_wallet/WalletsScreen/WalletTransactions/wallet_transactions.dart';
 import 'package:e_wallet/models/transaction.dart';
-import 'package:e_wallet/models/wallet.dart';
-import 'package:e_wallet/rest/auth_repository.dart';
 import 'package:e_wallet/rest/wallets_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,8 +11,9 @@ class WalletTransactionsBloc extends Bloc<WalletTransactionsEvents, WalletTransa
 
   int walletId;
   List<Transaction> transactions = [];
+  WalletTransactionsEvent _event;
 
-  WalletTransactionsBloc(this.walletId);
+  WalletTransactionsBloc(this.walletId, this._event);
 
   @override
   WalletTransactionsStates get initialState => WalletTransactionsInit();
@@ -31,7 +21,9 @@ class WalletTransactionsBloc extends Bloc<WalletTransactionsEvents, WalletTransa
   @override
   Stream<WalletTransactionsStates> mapEventToState(WalletTransactionsEvents event) async* {
     if (event is LoadWalletTransactions) {
-      transactions = await WalletsRepository().getTransactions(walletId);
+      transactions = await WalletsRepository().getTransactions(walletId, (error) {
+        _event.onError(error);
+      });
       yield WalletTransactionsLoaded();
     }
     if (event is ReloadWalletTransactions) {

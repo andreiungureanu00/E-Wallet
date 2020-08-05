@@ -5,3 +5,4 @@ abstract class MainScreenEvent extends Object {
 
 class LoadWallets extends MainScreenEvent {}
 class ReloadWallets extends MainScreenEvent {}
+class DeleteWallet extends MainScreenEvent {}

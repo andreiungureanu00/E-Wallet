@@ -14,31 +14,32 @@ import 'login_bloc/login_page_bloc.dart';
 import 'login_bloc/login_page_states.dart';
 
 class MyLoginPage extends StatefulWidget {
-  final int authCode;
-
-  MyLoginPage(this.authCode);
-
   @override
-  _MyLoginPageState createState() => _MyLoginPageState(authCode);
+  _MyLoginPageState createState() => _MyLoginPageState();
 }
 
 class _MyLoginPageState extends State<MyLoginPage> {
   var currentUser;
   String email, password, username;
-  bool showProgress;
-  bool isSignIn = false, isSignInFacebook = false, isSignInGoogle = false;
+  bool showProgress, isSetUser;
   final _auth = FirebaseAuth.instance;
   var accessToken;
   int authCode;
   LoginPageBloc _loginPageBloc;
 
-  _MyLoginPageState(this.authCode);
+  _MyLoginPageState();
 
   @override
   void initState() {
     _loginPageBloc = LoginPageBloc();
     _loginPageBloc.loadLoginPage();
-    print("codul de autentificare este : " + authCode.toString());
+    CurrentUserSingleton().getCurrentUserAsync().then((value) => null);
+    currentUser = CurrentUserSingleton().getCurrentUser();
+    if (currentUser != null) {
+      authCode = currentUser.authCode;
+    } else {
+      authCode = -1;
+    }
     super.initState();
   }
 
@@ -142,16 +143,11 @@ class _MyLoginPageState extends State<MyLoginPage> {
                               child: MaterialButton(
                                 onPressed: () async {
                                   if (authCode != 3) {
-
                                     if (username != null && password != null) {
                                       AuthRepository().loginWithCredentials(
                                           username, password);
 
                                       showProgress = true;
-                                      isSignInGoogle = false;
-                                      isSignIn = true;
-                                      isSignInFacebook = false;
-
                                       _loginPageBloc.reloadLoginPage();
 
                                       Fluttertoast.showToast(
@@ -169,17 +165,13 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                MainScreen(currentUser),
+                                            builder: (context) => MainScreen(),
                                           ));
                                     }
-
                                   } else {
                                     _auth.signOut();
                                     _loginPageBloc.reloadLoginPage();
                                     await CurrentUserSingleton().logout();
-                                    authCode = 0;
-                                    isSignIn = false;
                                     _loginPageBloc.reloadLoginPage();
                                   }
                                 },
@@ -205,10 +197,8 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                         ),
                                         onPressed: () {
                                           AuthRepository().logoutFromFacebook();
-                                          setState(() {
-                                            authCode = 0;
-                                            isSignInFacebook = false;
-                                          });
+
+                                          authCode = 0;
                                         },
                                         color: Colors.indigo,
                                       ),
@@ -224,17 +214,13 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                           currentUser = await AuthRepository()
                                               .logInWithFacebook();
 
-                                          isSignInFacebook = true;
-                                          isSignInGoogle = false;
-                                          isSignIn = false;
-
                                           _loginPageBloc.reloadLoginPage();
 
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    MainScreen(currentUser),
+                                                    MainScreen(),
                                               ));
                                         },
                                       )
@@ -251,8 +237,6 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                           color: Color(0xffE1E9E5),
                                           onPressed: () {
                                             AuthRepository().googleSignout();
-                                            authCode = 0;
-                                            isSignInGoogle = false;
                                             _loginPageBloc.reloadLoginPage();
                                           },
                                           child: Row(
@@ -282,17 +266,12 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                       currentUser = await AuthRepository()
                                           .logInWithGoogle();
 
-                                      isSignInGoogle = true;
-                                      isSignInFacebook = false;
-                                      isSignIn = false;
-
                                       _loginPageBloc.reloadLoginPage();
 
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                MainScreen(currentUser),
+                                            builder: (context) => MainScreen(),
                                           ));
                                     },
                                     child: Row(

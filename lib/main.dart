@@ -10,48 +10,21 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   String accessToken;
-  User currentUser;
-  bool isSignInFacebook;
-  bool isSignInGoogle;
-  bool isSignIn;
-  var authCode;
+  await CurrentUserSingleton().getAccessTokenAsync();
+  accessToken = CurrentUserSingleton().getAccessToken();
+  print(accessToken);
+//  User user;
+//
+//  await CurrentUserSingleton().getCurrentUserAsync();
+//  user = CurrentUserSingleton().getCurrentUser();
 
-  Future<void> getData() async {
-    await CurrentUserSingleton().getAccessTokenAsync();
-    accessToken = CurrentUserSingleton().getAccessToken();
-    await CurrentUserSingleton().getCurrentUserAsync();
-    currentUser = CurrentUserSingleton().getCurrentUser();
-
-    if (currentUser != null) {
-      authCode = currentUser.authCode;
-
-      if (authCode == 1) {
-        isSignInFacebook = true;
-        isSignInGoogle = false;
-        isSignIn = false;
-      } else if (authCode == 2) {
-        isSignInGoogle = true;
-        isSignInFacebook = false;
-        isSignIn = false;
-      } else if (authCode == 3) {
-        isSignIn = true;
-        isSignInFacebook = false;
-        isSignInGoogle = false;
-      }
-    } else {
-      print("nu sunt logat");
-    }
-  }
-
-  await getData();
-
-  runApp(MyApp(currentUser));
+  runApp(MyApp(accessToken));
 }
 
 class MyApp extends StatelessWidget {
-  final currentUser;
+  final accessToken;
 
-  MyApp(this.currentUser);
+  MyApp(this.accessToken);
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +35,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: currentUser == null ? MyLoginPage(0) : MainScreen(currentUser),
+      home: accessToken == null ? MyLoginPage() : MainScreen(),
     );
   }
 }

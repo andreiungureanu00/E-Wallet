@@ -6,8 +6,8 @@ import 'package:e_wallet/models/bank.dart';
 import 'package:e_wallet/models/coin.dart';
 import 'package:e_wallet/models/rate.dart';
 import 'package:e_wallet/rest/StringConfigs.dart';
-import 'package:e_wallet/rest/api_handler.dart';
-import 'package:e_wallet/rest/app_exceptions.dart';
+import 'file:///D:/Android%20Projects/new_e_wallet/E-Wallet-master/lib/Exceptions/api_handler.dart';
+import 'file:///D:/Android%20Projects/new_e_wallet/E-Wallet-master/lib/Exceptions/app_exceptions.dart';
 
 class BankRepository {
   static final BankRepository _singleton = new BankRepository._internal();
@@ -18,7 +18,7 @@ class BankRepository {
 
   BankRepository._internal();
 
-  Future<dynamic> getBanks() async {
+  Future<dynamic> getBanks(Function onError) async {
     Response response;
     Dio dio = new Dio();
     List<Bank> banks = [];
@@ -37,30 +37,28 @@ class BankRepository {
                 forceRefresh: true,
               ));
 
-      responseJson = ApiHandler().returnResponse(response);
-      print(responseJson.toString());
-
       for (var i in response.data["results"]) {
         Bank bank = Bank.fromJson(i);
         banks.add(bank);
       }
-    } on SocketException {
-      throw FetchDataException("No internet connection");
+    } catch (exception) {
+      if (exception is DioError) {
+        onError(exception.error);
+      }
     }
-
     return banks;
   }
 
-  Future<List<Coin>> getAvailableCoins(int bankID) async {
+  Future<List<Coin>> getAvailableCoins(int bankID, Function onError) async {
     Response response;
     Dio dio = new Dio();
     Rate rate;
     List<Coin> coins = List();
 
-    dio.interceptors.add(DioCacheManager(CacheConfig(
-            baseUrl:
-                "${StringConfigs.baseApiUrl}/banks/coin/$bankID/?format=json"))
-        .interceptor);
+//    dio.interceptors.add(DioCacheManager(CacheConfig(
+//            baseUrl:
+//                "${StringConfigs.baseApiUrl}/banks/coin/$bankID/?format=json"))
+//        .interceptor);
 
     try {
       response = await dio.get(
@@ -93,8 +91,10 @@ class BankRepository {
           coins.add(coin);
         }
       }
-    } on SocketException {
-      throw FetchDataException("No internet connection");
+    } catch (exception) {
+      if (exception is DioError) {
+        onError(exception.error);
+      }
     }
 
     return coins;

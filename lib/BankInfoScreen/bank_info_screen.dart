@@ -18,7 +18,7 @@ class BankInfoPage extends StatefulWidget {
   _BankInfoPageState createState() => _BankInfoPageState(bank);
 }
 
-class _BankInfoPageState extends State<BankInfoPage> {
+class _BankInfoPageState extends State<BankInfoPage> with OnError {
   Bank bank;
   ScrollController scrollController;
   int pageNumber;
@@ -29,6 +29,7 @@ class _BankInfoPageState extends State<BankInfoPage> {
   // ignore: non_constant_identifier_names
   int page_size;
   BankInfoBloc _bankInfoBloc;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
   _BankInfoPageState(this.bank);
 
@@ -43,7 +44,7 @@ class _BankInfoPageState extends State<BankInfoPage> {
   void initState() {
     pageNumber = 1;
     page_size = 10;
-    _bankInfoBloc = BankInfoBloc(bank);
+    _bankInfoBloc = BankInfoBloc(bank, this);
     _bankInfoBloc.loadBankInfo();
     scrollController = ScrollController();
     scrollController.addListener(_scrollListener);
@@ -59,6 +60,7 @@ class _BankInfoPageState extends State<BankInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       backgroundColor: Color(0xffE1E9E5),
       appBar: AppBar(
         title: Center(
@@ -218,17 +220,17 @@ class _BankInfoPageState extends State<BankInfoPage> {
                             ),
                             FlatButton(
                                 child: Text(
-                                    "Reports",
+                                  "Reports",
                                   style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold
-                                  ),
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 onPressed: () {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => ReportsScreen(data[index].id),
+                                        builder: (context) =>
+                                            ReportsScreen(data[index].id),
                                       ));
                                 }),
                             SizedBox(
@@ -241,4 +243,22 @@ class _BankInfoPageState extends State<BankInfoPage> {
           }),
     );
   }
+
+  @override
+  void onError(errorText) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(errorText),
+        action: SnackBarAction(
+          label: 'Click Me',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+}
+
+abstract class OnError {
+  void onError(var errorText);
 }

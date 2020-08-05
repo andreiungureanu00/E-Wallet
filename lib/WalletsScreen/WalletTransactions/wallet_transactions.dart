@@ -1,15 +1,10 @@
 import 'dart:io';
 
-import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
+import 'package:e_wallet/WalletsScreen/TransactionCreate/transaction_create.dart';
 import 'package:e_wallet/WalletsScreen/WalletTransactions/bloc/wallet_transactions_bloc.dart';
 import 'package:e_wallet/WalletsScreen/WalletTransactions/bloc/wallet_transactions_states.dart';
-import 'file:///D:/Android%20Projects/new_e_wallet/E-Wallet-master/lib/WalletsScreen/TransactionCreate/transaction_create.dart';
-import 'package:e_wallet/models/coin.dart';
-import 'package:e_wallet/models/transaction.dart';
-import 'package:e_wallet/rest/wallets_repository.dart';
+
 import 'package:flutter/cupertino.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -25,16 +20,18 @@ class WalletTransactions extends StatefulWidget {
       WalletTransactionsState(walletID, currency);
 }
 
-class WalletTransactionsState extends State<WalletTransactions> {
+class WalletTransactionsState extends State<WalletTransactions>
+    with WalletTransactionsEvent {
   final int walletID;
   final int currency;
   WalletTransactionsBloc _walletTransactionsBloc;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
   WalletTransactionsState(this.walletID, this.currency);
 
   @override
   void initState() {
-    _walletTransactionsBloc = WalletTransactionsBloc(walletID);
+    _walletTransactionsBloc = WalletTransactionsBloc(walletID, this);
     _walletTransactionsBloc.loadWalletTransactions();
     super.initState();
   }
@@ -42,6 +39,7 @@ class WalletTransactionsState extends State<WalletTransactions> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
         appBar: AppBar(
           title: Center(
               child: Column(
@@ -84,11 +82,9 @@ class WalletTransactionsState extends State<WalletTransactions> {
                     if (_walletTransactionsBloc.transactions == null) {
                       return Column(
                         children: [
-                          SizedBox(height: MediaQuery.of(context).size.height / 3),
-                          Container(
-                              child: CircularProgressIndicator()
-
-                          )
+                          SizedBox(
+                              height: MediaQuery.of(context).size.height / 3),
+                          Container(child: CircularProgressIndicator())
                         ],
                       );
                     } else {
@@ -206,4 +202,23 @@ class WalletTransactionsState extends State<WalletTransactions> {
           ),
         ));
   }
+
+  @override
+  void onError(errorText) {
+    print(errorText);
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(errorText),
+        action: SnackBarAction(
+          label: 'Click Me',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+}
+
+abstract class WalletTransactionsEvent {
+  void onError(var errorText);
 }
