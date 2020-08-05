@@ -148,9 +148,7 @@ class _BankInfoPageState extends State<BankInfoPage> with OnError {
                       text: [
                         "Vânzare",
                       ],
-                      pause: Duration(
-                        milliseconds: 1800
-                      ),
+                      pause: Duration(milliseconds: 1800),
                       speed: Duration(milliseconds: 400),
                       alignment: AlignmentDirectional.topEnd,
                       textAlign: TextAlign.start,
@@ -191,6 +189,7 @@ class _BankInfoPageState extends State<BankInfoPage> with OnError {
           itemBuilder: (BuildContext context, int index) {
             return Card(
                 elevation: 0,
+                color: Colors.transparent,
                 child: Container(
                     color: Color(0xffE1E9E5),
                     child: Row(
@@ -217,13 +216,24 @@ class _BankInfoPageState extends State<BankInfoPage> with OnError {
                             InkWell(
                               child: Container(
                                 margin: EdgeInsets.only(top: 5),
-                                child: Text(
-                                  data[index].abbr,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 30,
-                                    fontFamily: 'RobotMono',
-                                  ),
+                                child: ColorizeAnimatedTextKit(
+                                    onTap: () {},
+                                    repeatForever: true,
+                                    text: [
+                                      data[index].abbr,
+                                    ],
+                                    textStyle: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 30,
+                                        fontFamily: "Horizon"),
+                                    colors: [
+                                      Colors.black,
+                                      Colors.red,
+                                      Colors.black
+                                    ],
+                                    textAlign: TextAlign.start,
+                                    alignment: AlignmentDirectional
+                                        .topStart // or Alignment.topLeft
                                 ),
                               ),
                               onTap: () {

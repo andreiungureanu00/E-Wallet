@@ -83,7 +83,7 @@ class _BankPageState extends State<BankPage> with OnError {
             onPressed: () {},
           ),
         ],
-        backgroundColor: Color(0xffE1E9E5),
+        backgroundColor: Colors.white,
         brightness: Brightness.dark,
         textTheme: TextTheme(
           headline5: TextStyle(
@@ -216,6 +216,7 @@ class _BankPageState extends State<BankPage> with OnError {
                                         )),
                                   ),
                                   onTap: _moveUp,
+                                  onDoubleTap: _moveDown,
                                 ),
                               ],
                             ));
