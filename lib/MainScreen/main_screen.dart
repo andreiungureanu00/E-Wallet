@@ -378,7 +378,10 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
                   children: [
                     IconButton(
                       iconSize: 50,
-                      icon: Icon(FontAwesomeIcons.caretLeft),
+                      icon: Visibility(
+                        child: Icon(FontAwesomeIcons.caretLeft),
+                        visible: false,
+                      ),
                       onPressed: () {
                         if (counter > 0) counter--;
                         _moveDown();
@@ -396,7 +399,10 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
                     ),
                     IconButton(
                       iconSize: 50,
-                      icon: Icon(FontAwesomeIcons.caretRight),
+                      icon: Visibility(
+                         child: Icon(FontAwesomeIcons.caretRight),
+                        visible: false,
+                      ),
                       onPressed: () {
                         counter++;
                         if (counter > bloc.wallets.length - 1) counter = 0;

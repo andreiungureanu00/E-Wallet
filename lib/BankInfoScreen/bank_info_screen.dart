@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:e_wallet/BankInfoScreen/bloc/bank_info_bloc.dart';
 import 'package:e_wallet/BankInfoScreen/bloc/bank_info_states.dart';
 import 'package:e_wallet/ReportsScreen/reports_screen.dart';
@@ -6,7 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:decimal/decimal.dart';
 
 // ignore: must_be_immutable
 class BankInfoPage extends StatefulWidget {
@@ -38,6 +41,12 @@ class _BankInfoPageState extends State<BankInfoPage> with OnError {
         !scrollController.position.outOfRange) {}
     if (scrollController.offset <= scrollController.position.minScrollExtent &&
         !scrollController.position.outOfRange) {}
+  }
+
+  void round(double number) {
+    int decimals = 2;
+    int fac = pow(10, decimals);
+    number = (number * fac).round() / fac;
   }
 
   @override
@@ -111,10 +120,47 @@ class _BankInfoPageState extends State<BankInfoPage> with OnError {
                     "Curs valutar",
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 25,
+                      fontSize: 35,
                       fontFamily: 'RobotMono',
                     ),
                   ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TyperAnimatedTextKit(
+                      text: [
+                        "Cumpărare",
+                      ],
+                      speed: Duration(milliseconds: 400),
+                      alignment: AlignmentDirectional.topStart,
+                      textAlign: TextAlign.start,
+                      textStyle: TextStyle(
+                        color: Colors.green,
+                        fontSize: 27,
+                        fontFamily: 'RobotMono',
+                      ),
+                    ),
+                    TyperAnimatedTextKit(
+                      text: [
+                        "Vânzare",
+                      ],
+                      pause: Duration(
+                        milliseconds: 1800
+                      ),
+                      speed: Duration(milliseconds: 400),
+                      alignment: AlignmentDirectional.topEnd,
+                      textAlign: TextAlign.start,
+                      textStyle: TextStyle(
+                        color: Colors.green,
+                        fontSize: 27,
+                        fontFamily: 'RobotMono',
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(
                   height: 20,
@@ -144,99 +190,65 @@ class _BankInfoPageState extends State<BankInfoPage> with OnError {
           itemCount: data.length,
           itemBuilder: (BuildContext context, int index) {
             return Card(
+                elevation: 0,
                 child: Container(
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                            colors: [Color(0xffE1E9E5), Colors.white]),
-                        borderRadius: BorderRadius.circular(7)),
+                    color: Color(0xffE1E9E5),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        Container(
+                          child: Text(
+                            double.parse(data[index]
+                                        .rate_sell
+                                        .toStringAsFixed(1))
+                                    .toString() +
+                                " MDL",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 25,
+                              fontFamily: 'RobotMono',
+                            ),
+                          ),
+                        ),
                         Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             InkWell(
                               child: Container(
+                                margin: EdgeInsets.only(top: 5),
                                 child: Text(
-                                  data[index].name,
+                                  data[index].abbr,
                                   style: TextStyle(
                                     color: Colors.black,
-                                    fontSize: 22,
+                                    fontSize: 30,
                                     fontFamily: 'RobotMono',
                                   ),
                                 ),
                               ),
-                            ),
-                            Container(
-                              child: Text(
-                                data[index].abbr,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 17,
-                                  fontFamily: 'RobotMono',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Container(
-                                margin: EdgeInsets.only(bottom: 10),
-                                child: TypewriterAnimatedTextKit(
-                                  text: [
-                                    "Cursul curent",
-                                  ],
-                                  repeatForever: true,
-                                  textStyle: TextStyle(
-                                    color: Colors.green,
-                                    fontSize: 19,
-                                    fontFamily: 'RobotMono',
-                                  ),
-                                )),
-                            Container(
-                              child: Text(
-                                "Vânzare: " +
-                                    data[index].rate_sell.toString() +
-                                    " MDL",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 17,
-                                  fontFamily: 'RobotMono',
-                                ),
-                              ),
-                            ),
-                            Container(
-                              child: Text(
-                                "Cumpărare: " +
-                                    data[index].rate_buy.toString() +
-                                    " MDL",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 17,
-                                  fontFamily: 'RobotMono',
-                                ),
-                              ),
-                            ),
-                            FlatButton(
-                                child: Text(
-                                  "Reports",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ReportsScreen(data[index].id),
-                                      ));
-                                }),
-                            SizedBox(
-                              height: 20,
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ReportsScreen(data[index].id),
+                                    ));
+                              },
                             )
                           ],
+                        ),
+                        Container(
+                          child: Text(
+                            double.parse(
+                                        data[index].rate_buy.toStringAsFixed(1))
+                                    .toString() +
+                                " MDL",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 25,
+                              fontFamily: 'RobotMono',
+                            ),
+                          ),
                         ),
                       ],
                     )));

@@ -47,36 +47,17 @@ class _MyLoginPageState extends State<MyLoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color(0xffE1E9E5),
-        appBar: AppBar(
-          title: Center(
-              child: Column(
-            children: [
-              SizedBox(height: 5),
-              Text("Login Page",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20)),
-            ],
-          )),
-          elevation: 0,
-          backgroundColor: Color(0xffE1E9E5),
-          brightness: Brightness.dark,
-          textTheme: TextTheme(
-            headline5: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-            ),
-          ),
-          iconTheme: IconThemeData(
-            color: Colors.white,
-          ),
-        ),
         body: BlocBuilder<LoginPageBloc, LoginPageStates>(
             bloc: _loginPageBloc,
             builder: (context, state) {
               return SingleChildScrollView(
                   child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    fit: BoxFit.fitHeight,
+                      image: NetworkImage(
+                          "https://www.elegantthemes.com/blog/wp-content/uploads/2013/09/bg-2-full.jpg")),
+                ),
                 height: MediaQuery.of(context).size.height,
                 child: Column(
                   children: [
@@ -85,18 +66,27 @@ class _MyLoginPageState extends State<MyLoginPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           SizedBox(
-                            height: 120.0,
+                            height: 240.0,
                           ),
                           TextField(
                             textAlign: TextAlign.center,
                             onChanged: (value) {
                               username = value; // get value from TextField
                             },
-                            decoration: InputDecoration(
-                                hintText: "Enter your email",
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(32.0)))),
+                              decoration: InputDecoration(
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                  BorderSide(color: Colors.white, width: 5.0),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide:
+                                  BorderSide(color: Colors.white, width: 1.0),
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(32.0)),
+                                ),
+                                hintText: 'Enter your Email',
+                                hintStyle: TextStyle(color: Colors.white),
+                              ),
                           ),
                           SizedBox(
                             height: 20.0,
@@ -108,13 +98,19 @@ class _MyLoginPageState extends State<MyLoginPage> {
                               password = value; //get value from textField
                             },
                             decoration: InputDecoration(
-                                hintText: "Enter your Password",
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(32.0)))),
-                          ),
-                          SizedBox(
-                            height: 20.0,
+                              focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Colors.white, width: 5.0),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Colors.white, width: 1.0),
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(32.0)),
+                              ),
+                              hintText: 'Enter your password',
+                              hintStyle: TextStyle(color: Colors.white),
+                            ),
                           ),
                           SizedBox(
                             height: 20.0,
@@ -130,9 +126,8 @@ class _MyLoginPageState extends State<MyLoginPage> {
                             child: Text(
                               "Are you new here? Sign Up",
                               style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w900),
+                                  color: Colors.white,
+                                  fontSize: 15),
                             ),
                           ),
                           SizedBox(height: 15),
@@ -190,17 +185,16 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       SizedBox(height: 50),
-                                      RaisedButton(
+                                      FlatButton(
                                         child: Text(
                                           "Logout from Facebook",
                                           style: TextStyle(color: Colors.white),
                                         ),
                                         onPressed: () {
                                           AuthRepository().logoutFromFacebook();
-
                                           authCode = 0;
+                                          _loginPageBloc.reloadLoginPage();
                                         },
-                                        color: Colors.indigo,
                                       ),
                                     ],
                                   ),
@@ -234,9 +228,9 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                       SizedBox(
                                         width: 220,
                                         child: FlatButton(
-                                          color: Color(0xffE1E9E5),
                                           onPressed: () {
                                             AuthRepository().googleSignout();
+                                            authCode = 0;
                                             _loginPageBloc.reloadLoginPage();
                                           },
                                           child: Row(
@@ -250,7 +244,12 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                               SizedBox(width: 10),
                                               Center(
                                                 child:
-                                                    Text("Logout from Google"),
+                                                    Text(
+                                                        authCode==2 ? "Logout from Google" : "Login with Google",
+                                                      style: TextStyle(
+                                                        color: Colors.white
+                                                      ),
+                                                    ),
                                               )
                                             ],
                                           ),
@@ -261,10 +260,10 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                 )
                               : Center(
                                   child: FlatButton(
-                                    color: Color(0xffE1E9E5),
                                     onPressed: () async {
                                       currentUser = await AuthRepository()
                                           .logInWithGoogle();
+                                      authCode = 2;
 
                                       _loginPageBloc.reloadLoginPage();
 
@@ -284,7 +283,12 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                         ),
                                         SizedBox(width: 10),
                                         Center(
-                                          child: Text("Login with Google"),
+                                          child: Text(
+                                              "Login with Google",
+                                            style: TextStyle(
+                                              color: Colors.white
+                                            ),
+                                          ),
                                         )
                                       ],
                                     ),

@@ -5,3 +5,5 @@ abstract class BankPageEvents extends Object {
 
 class LoadBankPage extends BankPageEvents {}
 class ReloadBankPage extends BankPageEvents {}
+class LoadBankInfo extends BankPageEvents {}
+class ReloadBankInfo extends BankPageEvents {}
