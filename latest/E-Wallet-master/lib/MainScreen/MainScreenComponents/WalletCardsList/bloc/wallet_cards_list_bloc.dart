@@ -61,10 +61,8 @@ class WalletCardsListBloc extends Bloc<WalletCardsListEvents, WalletCardsListSta
       if (updatedWallet != null) {
         for (int i = 0; i < wallets.length; i++) {
           if (wallets[i].id == updatedWallet.id) {
-            print("inainte balance = " + wallets[i].balance);
             wallets[i].balance = updatedWallet.balance;
           }
-          print("apoi balance = " + wallets[i].balance);
         }
         reloadWallets();
       }

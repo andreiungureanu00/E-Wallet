@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:e_wallet/AuthScreen/LoginScreen/login_page_screen.dart';
 import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
 import 'package:e_wallet/models/bank.dart';
 import 'package:e_wallet/models/user.dart';
@@ -18,8 +19,9 @@ class LoginPageBloc extends Bloc<LoginPageEvents, LoginPageStates> {
   bool weCanCheckBiometrics;
   bool authenticated;
   String userEmail;
+  LoginEvents _event;
 
-  LoginPageBloc() : super(LoginPageInit());
+  LoginPageBloc(this._event) : super(LoginPageInit());
 
   Future<String> loginWithCredentials(String username, String password) async {
     String accessToken;
@@ -50,7 +52,6 @@ class LoginPageBloc extends Bloc<LoginPageEvents, LoginPageStates> {
   @override
   Stream<LoginPageStates> mapEventToState(LoginPageEvents event) async* {
     if (event is LoadLoginPage) {
-
       yield LoginPageLoaded();
     }
 
@@ -63,6 +64,7 @@ class LoginPageBloc extends Bloc<LoginPageEvents, LoginPageStates> {
       await CurrentUserSingleton().setCurrentUserAsync(currentUser);
       accessToken = await AuthRepository().login("testuser", "testuser");
       await CurrentUserSingleton().setAccessTokenAsync(accessToken);
+      _event.signInWithFacebook();
     }
 
     if (event is LogoutFromFacebook) {
@@ -76,6 +78,7 @@ class LoginPageBloc extends Bloc<LoginPageEvents, LoginPageStates> {
       accessToken = await AuthRepository().login("testuser", "testuser");
       await CurrentUserSingleton().setAccessTokenAsync(accessToken);
       await CurrentUserSingleton().setCurrentUserAsync(currentUser);
+      _event.signInWithGoogle();
     }
 
     if (event is LogoutFromGoogle) {

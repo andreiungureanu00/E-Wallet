@@ -1,5 +1,6 @@
 import 'package:e_wallet/AuthScreen/LoginScreen/login_page_screen.dart';
 import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
+import 'package:e_wallet/MainScreen/MainScreenComponents/WalletCardsList/bloc/wallet_cards_list_bloc.dart';
 import 'package:e_wallet/MainScreen/MainScreenComponents/WalletCardsList/wallet_cards_list.dart';
 import 'package:e_wallet/MainScreen/bloc/main_screen_bloc.dart';
 import 'package:e_wallet/MainScreen/bloc/main_screen_state.dart';
@@ -23,6 +24,7 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
   ScrollController scrollController;
   int counter = 0;
   MainScreenBloc _mainScreenBloc;
+  WalletCardsListBloc _walletCardsListBloc;
   final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
   User currentUser;
   bool visibility;
@@ -30,11 +32,12 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
   @override
   void initState() {
     _mainScreenBloc = MainScreenBloc(this);
+    _walletCardsListBloc = WalletCardsListBloc(this);
     _mainScreenBloc.loadUser();
-    _mainScreenBloc.loadWallets();
+    _walletCardsListBloc.loadWallets();
     scrollController = ScrollController();
     scrollController.addListener(_scrollListener);
-    _mainScreenBloc.reloadWallets();
+    _walletCardsListBloc.reloadWallets();
     super.initState();
   }
 
@@ -135,7 +138,7 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-            image: NetworkImage("https://wallpapercave.com/wp/wp3988899.jpg"),
+            image: AssetImage("assets/MainScreenBackground.jpg"),
             fit: BoxFit.fitHeight),
       ),
       width: MediaQuery.of(context).size.width,
@@ -218,14 +221,13 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
                                   ],
                                 ),
                                 onTap: () async {
-                                  _mainScreenBloc.createdWallet =
+                                  _walletCardsListBloc.createdWallet =
                                   await Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
                                             WalletCreate(),
                                       ));
-                                  _mainScreenBloc.addNewWallet();
                                 },
                               ),
                               SizedBox(height: 20)
@@ -286,6 +288,7 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
     );
   }
 
+
   @override
   void onError(var errorText) {
     scaffoldKey.currentState.showSnackBar(
@@ -302,13 +305,11 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
 
   @override
   void loadWallets() {
-    _mainScreenBloc.loadWallets();
   }
 
 }
 
 abstract class MainScreenEvents {
   void onError(var errorText);
-
   void loadWallets();
 }

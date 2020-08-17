@@ -53,14 +53,12 @@ class AuthRepository {
     var result = await facebookLogin.logIn(['email']);
 
     if (result.status == FacebookLoginStatus.loggedIn) {
-      print("m-am logat");
       try {
         var token = result.accessToken.token;
         var graphResponse = await http.get(
             'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email,picture.width(400)&access_token=$token');
 
         var profile = json.decode(graphResponse.body);
-//        print(profile.toString());
         currentUser = User(
             profile["first_name"],
             profile["last_name"],
@@ -95,12 +93,16 @@ class AuthRepository {
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
 
+    print("google sdk token = " + googleSignInAuthentication.accessToken.toString());
+
     AuthResult result = (await _auth.signInWithCredential(credential));
     _user = result.user;
 
     if (_user != null) {
       currentUser = User(_user.displayName, _user.displayName, _user.email,
           _user.email, "password", _user.photoUrl, 2);
+
+//      print("user access token from firebase = " + _user.)
     }
 
     return currentUser;

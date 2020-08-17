@@ -24,17 +24,6 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
   @override
   Stream<MainScreenState> mapEventToState(MainScreenEvent event) async* {
     if (event is LoadWallets) {
-      wallets = await WalletsRepository().getWallets((error) {
-        print(error.toString());
-        _event.onError(error);
-      });
-      _event.loadWallets();
-
-      if (createdWallet != null) {
-        wallets.add(createdWallet);
-        reloadWallets();
-      }
-
       yield WalletsLoaded();
     }
 
@@ -46,61 +35,10 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       await CurrentUserSingleton().getCurrentUserAsync();
       yield WalletsLoaded();
     }
-
-    if (event is DeleteWallet) {
-      await WalletsRepository().deleteWallet(walletID, onError);
-      for (var element in wallets) {
-        if (element.id == walletID) {
-          wallets.remove(element);
-          break;
-        }
-      }
-      reloadWallets();
-    }
-
-    if (event is AddNewWallet) {
-      if (createdWallet != null) {
-        wallets.add(createdWallet);
-        reloadWallets();
-      }
-    }
-
-    if (event is UpdateWalletBalance) {
-      if (updatedWallet != null) {
-        for (int i = 0; i < wallets.length; i++) {
-          if (wallets[i].id == updatedWallet.id) {
-            print("inainte balance = " + wallets[i].balance);
-            wallets[i].balance = updatedWallet.balance;
-          }
-          print("apoi balance = " + wallets[i].balance);
-        }
-        reloadWallets();
-      }
-      reloadWallets();
-    }
-  }
-
-  loadWallets() {
-    add(LoadWallets());
-  }
-
-  reloadWallets() {
-    add(ReloadWallets());
-  }
-
-  deleteWallet() {
-    add(DeleteWallet());
   }
 
   loadUser() {
     add(LoadUser());
   }
 
-  addNewWallet() {
-    add(AddNewWallet());
-  }
-
-  updateWalletBalance() {
-    add(UpdateWalletBalance());
-  }
 }

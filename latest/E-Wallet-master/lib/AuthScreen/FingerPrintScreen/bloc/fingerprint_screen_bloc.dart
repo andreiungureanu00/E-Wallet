@@ -29,12 +29,10 @@ class FingerPrintScreenBloc
 
     if (event is TakeFingerPrint) {
       weCanCheckBiometrics = await localAuth.canCheckBiometrics;
-      print("weCanCheckBiometrics is " + weCanCheckBiometrics.toString());
 
       if (weCanCheckBiometrics) {
         authenticated = await localAuth.authenticateWithBiometrics(
             localizedReason: "FingerPrint");
-        print("authenticated is " + authenticated.toString());
         _event.onFingerPrintTaken();
       }
       yield FingerPrintScreenLoaded();

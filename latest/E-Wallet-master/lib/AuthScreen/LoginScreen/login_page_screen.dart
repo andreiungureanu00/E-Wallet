@@ -1,4 +1,4 @@
-import 'package:e_wallet/AuthScreen/FingerPrintScreen/ResetPasswordScreen/reset_password_screen.dart';
+import 'package:e_wallet/AuthScreen/ResetPasswordScreen/reset_password_screen.dart';
 import 'package:e_wallet/AuthScreen/SignUpScreen/sign_up_page_screen.dart';
 import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
 import 'package:e_wallet/MainScreen/main_screen.dart';
@@ -16,7 +16,7 @@ class MyLoginPage extends StatefulWidget {
   _MyLoginPageState createState() => _MyLoginPageState();
 }
 
-class _MyLoginPageState extends State<MyLoginPage> {
+class _MyLoginPageState extends State<MyLoginPage> with LoginEvents {
   var currentUser;
   String email, password, username;
   bool showProgress, isSetUser;
@@ -29,7 +29,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
 
   @override
   void initState() {
-    _loginPageBloc = LoginPageBloc();
+    _loginPageBloc = LoginPageBloc(this);
     CurrentUserSingleton().getCurrentUserAsync().then((value) => null);
     currentUser = CurrentUserSingleton().getCurrentUser();
     if (currentUser != null) {
@@ -54,8 +54,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                 decoration: BoxDecoration(
                   image: DecorationImage(
                       fit: BoxFit.fitHeight,
-                      image: NetworkImage(
-                          "https://www.elegantthemes.com/blog/wp-content/uploads/2013/09/bg-2-full.jpg")),
+                      image: AssetImage("assets/LoginPageBackground.jpg")),
                 ),
                 height: MediaQuery.of(context).size.height,
                 child: Column(
@@ -230,13 +229,6 @@ class _MyLoginPageState extends State<MyLoginPage> {
 
                                           await _loginPageBloc
                                               .reloadLoginPage();
-
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    MainScreen(),
-                                              ));
                                         },
                                       )
                                     ]),
@@ -288,12 +280,6 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                       authCode = 2;
 
                                       _loginPageBloc.reloadLoginPage();
-
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => MainScreen(),
-                                          ));
                                     },
                                     child: Row(
                                       mainAxisAlignment:
@@ -323,4 +309,28 @@ class _MyLoginPageState extends State<MyLoginPage> {
               ));
             }));
   }
+
+  @override
+  void signInWithFacebook() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainScreen(),
+        ));
+  }
+
+  @override
+  void signInWithGoogle() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainScreen(),
+        ));
+  }
+}
+
+abstract class LoginEvents {
+  void signInWithFacebook();
+
+  void signInWithGoogle();
 }
