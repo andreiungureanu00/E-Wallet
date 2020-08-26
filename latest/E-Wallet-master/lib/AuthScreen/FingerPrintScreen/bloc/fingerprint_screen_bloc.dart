@@ -13,7 +13,7 @@ class FingerPrintScreenBloc
     extends Bloc<FingerPrintScreenEvents, FingerPrintScreenStates> {
   final LocalAuthentication localAuth = LocalAuthentication();
   bool weCanCheckBiometrics = false, authenticated = false;
-  User user;
+  CurrentUser user;
   FingerPrintEvent _event;
 
   FingerPrintScreenBloc(this._event) : super(FingerPrintScreenInit());

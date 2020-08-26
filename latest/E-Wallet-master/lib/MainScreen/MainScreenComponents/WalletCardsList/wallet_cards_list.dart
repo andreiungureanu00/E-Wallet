@@ -311,21 +311,23 @@ class WalletCardsListState extends State<WalletCardsList>
 
   @override
   void onError(errorText) {
-//    scaffoldKey.currentState.showSnackBar(
-//      SnackBar(
-//        backgroundColor: Colors.red,
-//        content: Text(errorText),
-//        action: SnackBarAction(
-//          label: 'Click Me',
-//          onPressed: () {},
-//        ),
-//      ),
-//    );
   }
 
   @override
   void onWalletDelete(walletID) {
-    // TODO: implement onWalletDelete
+  }
+
+  @override
+  void onFCMTokenGot() {
+  }
+
+  @override
+  void onNotificationReceived() {
+  }
+
+  @override
+  void loadNotifications() {
+    // TODO: implement loadNotifications
   }
 }
 

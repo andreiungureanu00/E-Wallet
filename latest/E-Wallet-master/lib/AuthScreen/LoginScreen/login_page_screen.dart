@@ -1,3 +1,4 @@
+import 'package:e_wallet/AuthScreen/LoginScreen/ChangePasswordScreen/change_password_screen.dart';
 import 'package:e_wallet/AuthScreen/ResetPasswordScreen/reset_password_screen.dart';
 import 'package:e_wallet/AuthScreen/SignUpScreen/sign_up_page_screen.dart';
 import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
@@ -115,16 +116,27 @@ class _MyLoginPageState extends State<MyLoginPage> with LoginEvents {
                           SizedBox(height: 20),
                           GestureDetector(
                             onTap: () {
+                              authCode != 3 ?
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ResetPasswordScreen(),
+                                  )) :
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChangePassword(),
                                   ));
                             },
-                            child: Text(
+                            child: authCode != 3 ? Text(
                               "Forgot Password?",
                               style:
-                                  TextStyle(color: Colors.white, fontSize: 15),
+                              TextStyle(color: Colors.white, fontSize: 15),
+                            ) :
+                            Text(
+                              "Change Password",
+                              style:
+                              TextStyle(color: Colors.white, fontSize: 15),
                             ),
                           ),
                           SizedBox(
@@ -331,6 +343,5 @@ class _MyLoginPageState extends State<MyLoginPage> with LoginEvents {
 
 abstract class LoginEvents {
   void signInWithFacebook();
-
   void signInWithGoogle();
 }

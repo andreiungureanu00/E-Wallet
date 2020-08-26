@@ -1,17 +1,23 @@
+import 'dart:async';
+
 import 'package:e_wallet/AuthScreen/LoginScreen/login_page_screen.dart';
 import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
 import 'package:e_wallet/MainScreen/MainScreenComponents/WalletCardsList/bloc/wallet_cards_list_bloc.dart';
 import 'package:e_wallet/MainScreen/MainScreenComponents/WalletCardsList/wallet_cards_list.dart';
 import 'package:e_wallet/MainScreen/bloc/main_screen_bloc.dart';
 import 'package:e_wallet/MainScreen/bloc/main_screen_state.dart';
+import 'package:e_wallet/Notifications/notifications_list/notifications_list_page.dart';
+import 'package:e_wallet/Notifications/notifications_singleton.dart';
 import 'package:e_wallet/WalletsScreen/WalletCreate/wallet_create.dart';
-import 'package:e_wallet/WalletsScreen/WalletTransactions/wallet_transactions.dart';
 import 'package:e_wallet/models/user.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 import 'MainScreenComponents/Left_Menu/left_menu.dart';
 
@@ -21,117 +27,183 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> with MainScreenEvents {
-  ScrollController scrollController;
   int counter = 0;
   MainScreenBloc _mainScreenBloc;
+  FirebaseMessaging firebaseMessaging = FirebaseMessaging();
   WalletCardsListBloc _walletCardsListBloc;
   final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
-  User currentUser;
+  CurrentUser currentUser;
   bool visibility;
+  OverlayEntry _overlayEntry;
 
   @override
   void initState() {
     _mainScreenBloc = MainScreenBloc(this);
     _walletCardsListBloc = WalletCardsListBloc(this);
     _mainScreenBloc.loadUser();
-    _walletCardsListBloc.loadWallets();
-    scrollController = ScrollController();
-    scrollController.addListener(_scrollListener);
-    _walletCardsListBloc.reloadWallets();
+    if (NotificationsSingleton().fcm_token == null) {
+      _mainScreenBloc.getFCMToken();
+    }
+    _mainScreenBloc.getNotification();
+
     super.initState();
   }
 
-  _scrollListener() {
-    if (scrollController.position.userScrollDirection ==
-        ScrollDirection.forward) {}
-    if (scrollController.offset >= scrollController.position.maxScrollExtent &&
-        !scrollController.position.outOfRange) {}
-    if (scrollController.offset <= scrollController.position.minScrollExtent &&
-        !scrollController.position.outOfRange) if (scrollController
-            .position.userScrollDirection ==
-        ScrollDirection.reverse) {}
-  }
-
-  _moveUp() {
-    scrollController.animateTo(
-        scrollController.offset + MediaQuery.of(context).size.width,
-        curve: Curves.linear,
-        duration: Duration(milliseconds: 700));
-  }
-
-  _moveDown() {
-    scrollController.animateTo(
-        scrollController.offset - MediaQuery.of(context).size.width,
-        curve: Curves.linear,
-        duration: Duration(milliseconds: 700));
+  OverlayEntry _createOverlayEntry(String title, String message) {
+    _mainScreenBloc.pushNotification();
+    return OverlayEntry(
+        builder: (context) => BlocBuilder<MainScreenBloc, MainScreenState>(
+          cubit: _mainScreenBloc,
+          builder: (context, state) {
+            return Visibility(
+              child: AnimatedContainer(
+                height: 40,
+                duration: Duration(seconds: 5),
+                alignment: Alignment.topCenter,
+                child: Flushbar(
+                  title: title,
+                  message: message,
+                  flushbarPosition: FlushbarPosition.TOP,
+                  flushbarStyle: FlushbarStyle.FLOATING,
+                  reverseAnimationCurve: Curves.decelerate,
+                  forwardAnimationCurve: Curves.elasticOut,
+                  backgroundColor: Colors.red,
+                  boxShadows: [
+                    BoxShadow(
+                        color: Colors.blue[800],
+                        offset: Offset(0.0, 2.0),
+                        blurRadius: 3.0)
+                  ],
+                  backgroundGradient:
+                  LinearGradient(colors: [Colors.blueGrey, Colors.black]),
+                  isDismissible: true,
+                  duration: Duration(seconds: 4),
+                  icon: Icon(
+                    Icons.event,
+                    color: Colors.greenAccent,
+                  ),
+                  mainButton: FlatButton(
+                    onPressed: () {
+                      _mainScreenBloc.hideNotification();
+                      _mainScreenBloc.reloadPage();
+                    },
+                    child: Text(
+                      "Close",
+                      style: TextStyle(color: Colors.amber),
+                    ),
+                  ),
+                  showProgressIndicator: true,
+                  progressIndicatorBackgroundColor: Colors.blueGrey,
+                  titleText: Text(
+                    title,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0,
+                        color: Colors.yellow[600],
+                        fontFamily: "ShadowsIntoLightTwo"),
+                  ),
+                  messageText: Text(
+                    message,
+                    style: TextStyle(
+                        fontSize: 18.0,
+                        color: Colors.green,
+                        fontFamily: "ShadowsIntoLightTwo"),
+                  ),
+                ),
+              ),
+              visible: _mainScreenBloc.notification,
+            );
+          },
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: scaffoldKey,
-      appBar: AppBar(
-        title: Center(
-            child: Column(
-          children: [
-            SizedBox(height: 10),
-            Text("Wallet Page",
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20))
+    return OverlaySupport(
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        key: scaffoldKey,
+        appBar: AppBar(
+          title: Center(
+              child: Column(
+            children: [
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  SizedBox(width: 70),
+                  Text("Wallet Page",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20))
+
+                ],
+              )
+            ],
+          )),
+          elevation: 0,
+          actions: <Widget>[
+            IconButton(
+              color: Colors.black,
+              icon: Icon(FontAwesomeIcons.user),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MyLoginPage(),
+                    ));
+              },
+            ),
+            IconButton(
+              color: Colors.black,
+              icon: Icon(FontAwesomeIcons.bell),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Notifications(),
+                    ));
+              },
+            ),
           ],
-        )),
-        elevation: 0,
-        actions: <Widget>[
-          IconButton(
-            color: Colors.black,
-            icon: Icon(FontAwesomeIcons.user),
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MyLoginPage(),
-                  ));
-            },
+          backgroundColor: Colors.grey[600],
+          brightness: Brightness.dark,
+          textTheme: TextTheme(
+            headline5: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+            ),
           ),
-        ],
-        backgroundColor: Colors.grey[600],
-        brightness: Brightness.dark,
-        textTheme: TextTheme(
-          headline5: TextStyle(
+          iconTheme: IconThemeData(
             color: Colors.white,
-            fontSize: 20,
           ),
         ),
-        iconTheme: IconThemeData(
-          color: Colors.white,
+        drawer: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [Colors.white, Colors.black])),
+          child: Drawer(child: LeftMenu(_mainScreenBloc)),
+        ),
+        body: pageBody(),
+        bottomNavigationBar: BottomNavigationBar(
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(FontAwesomeIcons.wallet),
+              title: Text("Wallet"),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(FontAwesomeIcons.userAlt),
+              title: Text("Account"),
+            ),
+          ],
+          currentIndex: 0,
+          onTap: (i) {},
+          type: BottomNavigationBarType.fixed,
+          unselectedItemColor: Colors.white,
+          backgroundColor: Colors.blueGrey[800],
         ),
       ),
-      drawer: Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [Colors.white, Colors.black])),
-        child: Drawer(child: LeftMenu(_mainScreenBloc)),
-      ),
-      body: pageBody(),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.wallet),
-            title: Text("Wallet"),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.userAlt),
-            title: Text("Account"),
-          ),
-        ],
-        currentIndex: 0,
-        onTap: (i) {},
-        type: BottomNavigationBarType.fixed,
-        unselectedItemColor: Colors.white,
-        backgroundColor: Colors.blueGrey[800],
-      ),
-    );
+    ));
   }
 
   Widget pageBody() {
@@ -139,7 +211,7 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
       decoration: BoxDecoration(
         image: DecorationImage(
             image: AssetImage("assets/MainScreenBackground.jpg"),
-            fit: BoxFit.fitHeight),
+            fit: BoxFit.fill),
       ),
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
@@ -199,8 +271,7 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
                     ),
                   ),
                   Container(
-                    margin:
-                    EdgeInsets.symmetric(horizontal: 25, vertical: 25),
+                    margin: EdgeInsets.symmetric(horizontal: 25, vertical: 25),
                     alignment: Alignment.topLeft,
                     child: Column(
                       children: <Widget>[
@@ -211,8 +282,7 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
                               InkWell(
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Text(
                                       "Add Wallet",
@@ -222,12 +292,12 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
                                 ),
                                 onTap: () async {
                                   _walletCardsListBloc.createdWallet =
-                                  await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            WalletCreate(),
-                                      ));
+                                      await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                WalletCreate(),
+                                          ));
                                 },
                               ),
                               SizedBox(height: 20)
@@ -278,7 +348,9 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
                       ],
                     ),
                   ),
-                  SizedBox(height: 120),
+                  SizedBox(
+                    height: 30,
+                  ),
                 ],
               );
             },
@@ -287,7 +359,6 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
       )),
     );
   }
-
 
   @override
   void onError(var errorText) {
@@ -304,12 +375,35 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
   }
 
   @override
-  void loadWallets() {
+  void loadWallets() {}
+
+  @override
+  void onFCMTokenGot() {
+    _mainScreenBloc.sendFCMToken();
   }
 
+  @override
+  void onNotificationReceived() {
+    firebaseMessaging.configure(
+      onLaunch: (Map<String, dynamic> message) async {},
+      onMessage: (Map<String, dynamic> message) async {
+        final notification = message["notification"];
+        this._overlayEntry = this._createOverlayEntry(notification["title"], notification["body"]);
+        Timer.run(() {
+          Overlay.of(context).insert(this._overlayEntry);
+        });
+      },
+      onResume: (Map<String, dynamic> message) async {},
+    );
+  }
 }
 
 abstract class MainScreenEvents {
   void onError(var errorText);
+
   void loadWallets();
+
+  void onFCMTokenGot();
+
+  void onNotificationReceived();
 }

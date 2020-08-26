@@ -1,4 +1,4 @@
-class User {
+class CurrentUser {
   // ignore: non_constant_identifier_names
   String first_name;
 
@@ -10,10 +10,10 @@ class User {
   String photoUrl;
   int authCode;
 
-  User(this.first_name, this.last_name, this.email, this.username,
+  CurrentUser(this.first_name, this.last_name, this.email, this.username,
       this.password, this.photoUrl, this.authCode);
 
-  User.fromJson(Map<String, dynamic> json)
+  CurrentUser.fromJson(Map<String, dynamic> json)
       : first_name = json['first_name'],
         last_name = json['last_name'],
         email = json['email'],
@@ -34,7 +34,7 @@ class User {
     return map;
   }
 
-  User.fromMapObject(Map<String, dynamic> map) {
+  CurrentUser.fromMapObject(Map<String, dynamic> map) {
     this.last_name = map['last_name'];
     this.email = map['email'];
     this.username = map['username'];

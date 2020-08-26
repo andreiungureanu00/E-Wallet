@@ -12,7 +12,7 @@ class CurrentUserSingleton {
   CurrentUserSingleton._internal();
 
   String _currentAccessToken;
-  User _currentUser;
+  CurrentUser _currentUser;
 
   getAccessTokenAsync() async {
     _currentAccessToken = await SharedPreference().getAccessToken();
@@ -31,12 +31,12 @@ class CurrentUserSingleton {
     _currentUser = await SharedPreference().getCurrentUser();
   }
 
-  setCurrentUserAsync(User user) async {
+  setCurrentUserAsync(CurrentUser user) async {
     _currentUser = user;
     await SharedPreference().setCurrentUser(user);
   }
 
-  User getCurrentUser() {
+  CurrentUser getCurrentUser() {
     return _currentUser;
   }
 

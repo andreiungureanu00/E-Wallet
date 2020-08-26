@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:e_wallet/AuthScreen/LoginScreen/login_page_screen.dart';
 import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
+import 'package:e_wallet/Notifications/notifications_singleton.dart';
 import 'package:e_wallet/models/bank.dart';
 import 'package:e_wallet/models/user.dart';
 import 'package:e_wallet/rest/auth_repository.dart';
@@ -25,7 +26,7 @@ class LoginPageBloc extends Bloc<LoginPageEvents, LoginPageStates> {
 
   Future<String> loginWithCredentials(String username, String password) async {
     String accessToken;
-    User currentUser;
+    CurrentUser currentUser;
 
     try {
       accessToken = await AuthRepository().login(username, password);
@@ -71,6 +72,7 @@ class LoginPageBloc extends Bloc<LoginPageEvents, LoginPageStates> {
       AuthRepository().logoutFromFacebook();
       await CurrentUserSingleton().setAccessTokenAsync(null);
       await CurrentUserSingleton().logout();
+      NotificationsSingleton().setFCMToken(null);
     }
 
     if (event is LoginWithGoogle) {
@@ -85,6 +87,7 @@ class LoginPageBloc extends Bloc<LoginPageEvents, LoginPageStates> {
       await AuthRepository().googleSignout();
       await CurrentUserSingleton().setAccessTokenAsync(null);
       await CurrentUserSingleton().logout();
+      NotificationsSingleton().setFCMToken(null);
     }
 
   }
