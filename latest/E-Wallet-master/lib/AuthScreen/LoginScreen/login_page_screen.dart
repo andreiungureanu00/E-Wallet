@@ -2,6 +2,7 @@ import 'package:e_wallet/AuthScreen/LoginScreen/ChangePasswordScreen/change_pass
 import 'package:e_wallet/AuthScreen/ResetPasswordScreen/reset_password_screen.dart';
 import 'package:e_wallet/AuthScreen/SignUpScreen/sign_up_page_screen.dart';
 import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
+import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
 import 'package:e_wallet/MainScreen/main_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -67,6 +68,7 @@ class _MyLoginPageState extends State<MyLoginPage> with LoginEvents {
                           SizedBox(
                             height: 240.0,
                           ),
+                          NetworkIndicator(),
                           TextField(
                             textAlign: TextAlign.center,
                             style: TextStyle(color: Colors.white),

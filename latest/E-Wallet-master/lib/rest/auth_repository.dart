@@ -100,12 +100,16 @@ class AuthRepository {
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
 
-    print("google id token = " + googleSignInAuthentication.idToken.toString());
-    print("google access token = " +
-        googleSignInAuthentication.accessToken.toString());
+//    print("id token = " + _auth.currentUser.getIdToken().toString());
 
     UserCredential userCredential = (await _auth.signInWithCredential(credential));
     var _user = userCredential.user;
+//    userCredential.user.getIdToken().then((token) {
+//      print("token is " + token.toString());
+//    });
+    await _auth.currentUser.getIdToken().then((token) {
+      print(token.toString());
+    });
 
     if (_user != null) {
       currentUser = CurrentUser(

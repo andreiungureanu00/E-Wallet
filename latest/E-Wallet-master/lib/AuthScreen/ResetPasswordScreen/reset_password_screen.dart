@@ -1,3 +1,4 @@
+import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
 import 'package:e_wallet/rest/auth_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +45,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
       body: Column(
         children: [
           SizedBox(height: 50),
+          NetworkIndicator(),
           TextField(
             textAlign: TextAlign.center,
             onChanged: (value) {

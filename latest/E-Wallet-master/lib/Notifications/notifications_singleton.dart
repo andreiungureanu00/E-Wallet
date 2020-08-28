@@ -1,9 +1,5 @@
-import 'dart:io';
 
-import 'package:dio/dio.dart';
-import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
 import 'package:e_wallet/models/NotificationMessage.dart';
-import 'package:e_wallet/rest/StringConfigs.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class NotificationsSingleton {
@@ -22,6 +18,10 @@ class NotificationsSingleton {
   FirebaseMessaging firebaseMessaging = FirebaseMessaging();
   List<NotificationMessage> messages = [];
   var notification;
+
+  deleteTokenFromFirebase() async {
+
+  }
 
   getFCMTokenAsync() async {
     fcm_token = await firebaseMessaging.getToken();
@@ -48,6 +48,5 @@ class NotificationsSingleton {
       onResume: (Map<String, dynamic> message) async {},
     );
   }
-
 
 }

@@ -1,6 +1,7 @@
 
 import 'package:e_wallet/AuthScreen/SignUpScreen/signup_bloc/signup_page_bloc.dart';
 import 'package:e_wallet/AuthScreen/SignUpScreen/signup_bloc/signup_page_states.dart';
+import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
 import 'package:e_wallet/rest/register_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
+                    NetworkIndicator(),
                     Text(
                       "Registration Page",
                       style: TextStyle(

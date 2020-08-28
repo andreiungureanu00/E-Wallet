@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:overlay_support/overlay_support.dart';
 
 import 'MainScreenComponents/Left_Menu/left_menu.dart';
 
@@ -119,29 +118,27 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
 
   @override
   Widget build(BuildContext context) {
-    return OverlaySupport(
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         key: scaffoldKey,
         appBar: AppBar(
           title: Center(
               child: Column(
-            children: [
-              SizedBox(height: 10),
-              Row(
                 children: [
-                  SizedBox(width: 70),
-                  Text("Wallet Page",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20))
-
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      SizedBox(width: 60),
+                      Text("Wallet Page",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20))
+                    ],
+                  )
                 ],
-              )
-            ],
-          )),
+              )),
           elevation: 0,
           actions: <Widget>[
             IconButton(
@@ -203,7 +200,7 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
           backgroundColor: Colors.blueGrey[800],
         ),
       ),
-    ));
+    );
   }
 
   Widget pageBody() {

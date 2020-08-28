@@ -1,6 +1,7 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:e_wallet/BankPageScreen/bloc/bank_page_bloc.dart';
 import 'package:e_wallet/BankPageScreen/bloc/bank_page_states.dart';
+import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
 import 'package:e_wallet/models/bank.dart';
 import 'package:e_wallet/models/coin.dart';
 import 'package:flutter/cupertino.dart';
@@ -106,6 +107,7 @@ class _BankPageState extends State<BankPage> with OnError {
             if (_bankPageBloc.banks != null) {
               return Column(
                 children: [
+                  NetworkIndicator(),
                   Expanded(
                       child: ListView.builder(
                           controller: scrollController,
@@ -178,7 +180,7 @@ class _BankPageState extends State<BankPage> with OnError {
                                                                     context)
                                                                     .size
                                                                     .height /
-                                                                    1.5)),
+                                                                    1.7)),
                                                       ],
                                                     ),
                                                     InkWell(

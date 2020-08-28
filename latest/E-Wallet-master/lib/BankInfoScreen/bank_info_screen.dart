@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:e_wallet/BankInfoScreen/bloc/bank_info_bloc.dart';
 import 'package:e_wallet/BankInfoScreen/bloc/bank_info_states.dart';
+import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
 import 'package:e_wallet/ReportsScreen/reports_screen.dart';
 import 'package:e_wallet/models/bank.dart';
 import 'package:flutter/cupertino.dart';
@@ -181,86 +182,91 @@ class _BankInfoPageState extends State<BankInfoPage> with OnError {
   }
 
   Widget cell(data) {
-    return Expanded(
-      child: ListView.builder(
-          itemCount: data.length,
-          itemBuilder: (BuildContext context, int index) {
-            return Card(
-                elevation: 0,
-                color: Colors.transparent,
-                child: Container(
+    return Column(
+      children: [
+        NetworkIndicator(),
+        Expanded(
+          child: ListView.builder(
+              itemCount: data.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Card(
+                    elevation: 0,
                     color: Colors.transparent,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          child: Text(
-                            double.parse(data[index]
-                                        .rate_sell
-                                        .toStringAsFixed(1))
-                                    .toString() +
-                                " MDL",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 25,
-                              fontFamily: 'RobotMono',
-                            ),
-                          ),
-                        ),
-                        Column(
+                    child: Container(
+                        color: Colors.transparent,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            InkWell(
-                              child: Container(
-                                margin: EdgeInsets.only(top: 5),
-                                child: ColorizeAnimatedTextKit(
-                                    onTap: () {
-                                      print(data[index].currency.toString());
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                ReportsScreen(data[index].currency),
-                                          ));
-                                    },
-                                    repeatForever: true,
-                                    text: [
-                                      data[index].currencyName,
-                                    ],
-                                    textStyle: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 30,
-                                        fontFamily: "Horizon"),
-                                    colors: [
-                                      Colors.black,
-                                      Colors.red,
-                                      Colors.black
-                                    ],
-                                    textAlign: TextAlign.start,
-                                    alignment: AlignmentDirectional
-                                        .topStart // or Alignment.topLeft
+                            Container(
+                              child: Text(
+                                double.parse(data[index]
+                                    .rate_sell
+                                    .toStringAsFixed(1))
+                                    .toString() +
+                                    " MDL",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 25,
+                                  fontFamily: 'RobotMono',
                                 ),
                               ),
-                            )
-                          ],
-                        ),
-                        Container(
-                          child: Text(
-                            double.parse(
-                                        data[index].rate_buy.toStringAsFixed(1))
-                                    .toString() +
-                                " MDL",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 25,
-                              fontFamily: 'RobotMono',
                             ),
-                          ),
-                        ),
-                      ],
-                    )));
-          }),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                InkWell(
+                                  child: Container(
+                                    margin: EdgeInsets.only(top: 5),
+                                    child: ColorizeAnimatedTextKit(
+                                        onTap: () {
+                                          print(data[index].currency.toString());
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ReportsScreen(data[index].currency),
+                                              ));
+                                        },
+                                        repeatForever: true,
+                                        text: [
+                                          data[index].currencyName,
+                                        ],
+                                        textStyle: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 30,
+                                            fontFamily: "Horizon"),
+                                        colors: [
+                                          Colors.black,
+                                          Colors.red,
+                                          Colors.black
+                                        ],
+                                        textAlign: TextAlign.start,
+                                        alignment: AlignmentDirectional
+                                            .topStart // or Alignment.topLeft
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Container(
+                              child: Text(
+                                double.parse(
+                                    data[index].rate_buy.toStringAsFixed(1))
+                                    .toString() +
+                                    " MDL",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 25,
+                                  fontFamily: 'RobotMono',
+                                ),
+                              ),
+                            ),
+                          ],
+                        )));
+              }),
+        )
+      ],
     );
   }
 
