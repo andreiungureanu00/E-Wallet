@@ -1,5 +1,7 @@
 import 'package:e_wallet/BankInfoScreen/bloc/bank_info_bloc.dart';
 import 'package:e_wallet/BankPageScreen/bloc/bank_page_bloc.dart';
+import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
+import 'package:e_wallet/Notifications/notifications_flushbar/notifications_flushbar.dart';
 import 'package:e_wallet/WalletsScreen/WalletCreate/bloc/wallet_create_bloc.dart';
 import 'package:e_wallet/WalletsScreen/WalletCreate/bloc/wallet_create_states.dart';
 import 'package:e_wallet/models/bank.dart';
@@ -133,6 +135,8 @@ class WalletCreateState extends State<WalletCreate> with WalletCreateEvent {
                           SizedBox(width: 30),
                           Column(
                             children: [
+                              NetworkIndicator(),
+                              NotificationsFlushbar(),
                               Text("Choose currency"),
                               DropdownButton<String>(
                                   value: defaultCurrency,

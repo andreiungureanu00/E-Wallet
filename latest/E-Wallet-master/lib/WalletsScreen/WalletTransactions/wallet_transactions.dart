@@ -1,3 +1,5 @@
+import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
+import 'package:e_wallet/Notifications/notifications_flushbar/notifications_flushbar.dart';
 import 'package:e_wallet/WalletsScreen/TransactionCreate/transaction_create.dart';
 import 'package:e_wallet/WalletsScreen/WalletTransactions/bloc/wallet_transactions_bloc.dart';
 import 'package:e_wallet/WalletsScreen/WalletTransactions/bloc/wallet_transactions_states.dart';
@@ -43,6 +45,8 @@ class WalletTransactionsState extends State<WalletTransactions>
           title: Center(
               child: Column(
             children: [
+              NetworkIndicator(),
+              NotificationsFlushbar(),
               SizedBox(height: 10),
               FlatButton(
                 child: Text(

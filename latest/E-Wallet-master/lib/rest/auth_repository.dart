@@ -35,7 +35,11 @@ class AuthRepository {
 
   Future<String> signInWithEmail(String email, String password) async {
     UserCredential userCredential = (await _auth.signInWithEmailAndPassword(email: email, password: password));
+    print(userCredential.toString());
     var user = userCredential.user;
+    await userCredential.user.getIdToken().then((token) {
+      print(token.toString());
+    });
     return user.uid;
   }
 
@@ -57,11 +61,9 @@ class AuthRepository {
   Future<CurrentUser> logInWithFacebook() async {
     CurrentUser currentUser;
     var result = await facebookLogin.logIn(['email']);
-
     if (result.status == FacebookLoginStatus.loggedIn) {
       try {
         var token = result.accessToken.token;
-        print("la facebook token = " + token.toString());
         var graphResponse = await http.get(
             'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email,picture.width(400)&access_token=$token');
 
@@ -74,6 +76,7 @@ class AuthRepository {
             profile["password"],
             profile["picture"]["data"]["url"],
             1);
+
       } on PlatformException catch (e) {
         print(e.toString());
       }
@@ -100,16 +103,17 @@ class AuthRepository {
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
 
-//    print("id token = " + _auth.currentUser.getIdToken().toString());
+
 
     UserCredential userCredential = (await _auth.signInWithCredential(credential));
+    var ceva = await userCredential.user.getIdTokenResult().then((ceva) => print(ceva.token));
     var _user = userCredential.user;
 //    userCredential.user.getIdToken().then((token) {
 //      print("token is " + token.toString());
 //    });
-    await _auth.currentUser.getIdToken().then((token) {
-      print(token.toString());
-    });
+//    await _auth.currentUser.getIdToken().then((token) {
+//      print(token.toString());
+//    });
 
     if (_user != null) {
       currentUser = CurrentUser(

@@ -18,8 +18,6 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
   int counter = 0;
   List<Wallet> wallets;
   Wallet createdWallet;
-  String fcmToken;
-  bool notification;
 
   MainScreenBloc(this._event) : super(MainScreenInit());
 
@@ -29,47 +27,13 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       yield MainScreenLoaded();
     }
 
-    if (event is GetFCMToken) {
-      await NotificationsSingleton().getFCMTokenAsync();
-      fcmToken = NotificationsSingleton().getFCMToken();
-      _event.onFCMTokenGot();
-      yield MainScreenLoaded();
-    }
-
-    if (event is SendFCMToken) {
-//      await NotificationsSingleton().firebaseMessaging.deleteInstanceID();
-      var token = await NotificationsSingleton().firebaseMessaging.getToken();
-
-      print("firebase token = $token");
-        await NotificationsRepository().sendFCMToken(fcmToken);
-    }
-
     if (event is LoadUser) {
       await CurrentUserSingleton().getCurrentUserAsync();
       yield MainScreenLoaded();
     }
 
-    if (event is GetNotification) {
-      await NotificationsSingleton().getNotifications();
-      _event.onNotificationReceived();
-    }
-
-    if (event is ShowNotification) {
-      notification = true;
-      Future.delayed(Duration(seconds: 8)).then((value) {
-        hideNotification();
-        reloadPage();
-      });
-      yield HiddenNotification();
-    }
-
     if (event is ReloadWallets) {
       yield MainScreenLoaded();
-    }
-
-    if (event is HideNotification) {
-      notification = false;
-      yield HiddenNotification();
     }
 
   }
@@ -78,27 +42,8 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
     add(LoadUser());
   }
 
-  getFCMToken() {
-    add(GetFCMToken());
-  }
-
-  sendFCMToken() {
-    add(SendFCMToken());
-  }
-
-  getNotification() {
-    add(GetNotification());
-  }
-
   reloadPage() {
     add(ReloadWallets());
   }
 
-  pushNotification() {
-    add(ShowNotification());
-  }
-
-  hideNotification() {
-    add(HideNotification());
-  }
 }

@@ -1,3 +1,5 @@
+import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
+import 'package:e_wallet/Notifications/notifications_flushbar/notifications_flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_plugin_pdf_viewer/flutter_plugin_pdf_viewer.dart';
 import 'package:flutter/cupertino.dart';
@@ -52,6 +54,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            NetworkIndicator(),
+            NotificationsFlushbar(),
             Flexible(
               flex: 8,
               child: _isLoading

@@ -4,6 +4,7 @@ import 'package:e_wallet/AuthScreen/SignUpScreen/sign_up_page_screen.dart';
 import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
 import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
 import 'package:e_wallet/MainScreen/main_screen.dart';
+import 'package:e_wallet/rest/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -130,7 +131,7 @@ class _MyLoginPageState extends State<MyLoginPage> with LoginEvents {
                                     builder: (context) => ChangePassword(),
                                   ));
                             },
-                            child: authCode != 3 ? Text(
+                            child: authCode > 3 ? Text(
                               "Forgot Password?",
                               style:
                               TextStyle(color: Colors.white, fontSize: 15),

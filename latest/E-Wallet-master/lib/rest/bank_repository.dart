@@ -58,7 +58,7 @@ class BankRepository {
 
     dio.interceptors.add(DioCacheManager(CacheConfig(
             baseUrl:
-                "${StringConfigs.baseApiUrl}/statistics/live/bank/$bankID/?format=json"))
+                "/exchange/prediction/?date=2020-09-04&currency=378/statistics/live/bank/$bankID/?format=json"))
         .interceptor);
 
     try {
@@ -76,7 +76,7 @@ class BankRepository {
             element["date"],
             element["currency"]["id"],
             element["currency"]["abbr"]);
-        rates.add(rate);
+        rates.insert(0,rate);
       }
     } catch (exception) {
       if (exception is DioError) {

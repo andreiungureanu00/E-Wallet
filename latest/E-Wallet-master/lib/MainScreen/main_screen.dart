@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:e_wallet/AuthScreen/LoginScreen/login_page_screen.dart';
 import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
@@ -6,12 +5,10 @@ import 'package:e_wallet/MainScreen/MainScreenComponents/WalletCardsList/bloc/wa
 import 'package:e_wallet/MainScreen/MainScreenComponents/WalletCardsList/wallet_cards_list.dart';
 import 'package:e_wallet/MainScreen/bloc/main_screen_bloc.dart';
 import 'package:e_wallet/MainScreen/bloc/main_screen_state.dart';
+import 'package:e_wallet/Notifications/notifications_flushbar/notifications_flushbar.dart';
 import 'package:e_wallet/Notifications/notifications_list/notifications_list_page.dart';
-import 'package:e_wallet/Notifications/notifications_singleton.dart';
 import 'package:e_wallet/WalletsScreen/WalletCreate/wallet_create.dart';
 import 'package:e_wallet/models/user.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -28,92 +25,17 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> with MainScreenEvents {
   int counter = 0;
   MainScreenBloc _mainScreenBloc;
-  FirebaseMessaging firebaseMessaging = FirebaseMessaging();
   WalletCardsListBloc _walletCardsListBloc;
   final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
   CurrentUser currentUser;
   bool visibility;
-  OverlayEntry _overlayEntry;
 
   @override
   void initState() {
     _mainScreenBloc = MainScreenBloc(this);
     _walletCardsListBloc = WalletCardsListBloc(this);
     _mainScreenBloc.loadUser();
-    if (NotificationsSingleton().fcm_token == null) {
-      _mainScreenBloc.getFCMToken();
-    }
-    _mainScreenBloc.getNotification();
-
     super.initState();
-  }
-
-  OverlayEntry _createOverlayEntry(String title, String message) {
-    _mainScreenBloc.pushNotification();
-    return OverlayEntry(
-        builder: (context) => BlocBuilder<MainScreenBloc, MainScreenState>(
-          cubit: _mainScreenBloc,
-          builder: (context, state) {
-            return Visibility(
-              child: AnimatedContainer(
-                height: 40,
-                duration: Duration(seconds: 5),
-                alignment: Alignment.topCenter,
-                child: Flushbar(
-                  title: title,
-                  message: message,
-                  flushbarPosition: FlushbarPosition.TOP,
-                  flushbarStyle: FlushbarStyle.FLOATING,
-                  reverseAnimationCurve: Curves.decelerate,
-                  forwardAnimationCurve: Curves.elasticOut,
-                  backgroundColor: Colors.red,
-                  boxShadows: [
-                    BoxShadow(
-                        color: Colors.blue[800],
-                        offset: Offset(0.0, 2.0),
-                        blurRadius: 3.0)
-                  ],
-                  backgroundGradient:
-                  LinearGradient(colors: [Colors.blueGrey, Colors.black]),
-                  isDismissible: true,
-                  duration: Duration(seconds: 4),
-                  icon: Icon(
-                    Icons.event,
-                    color: Colors.greenAccent,
-                  ),
-                  mainButton: FlatButton(
-                    onPressed: () {
-                      _mainScreenBloc.hideNotification();
-                      _mainScreenBloc.reloadPage();
-                    },
-                    child: Text(
-                      "Close",
-                      style: TextStyle(color: Colors.amber),
-                    ),
-                  ),
-                  showProgressIndicator: true,
-                  progressIndicatorBackgroundColor: Colors.blueGrey,
-                  titleText: Text(
-                    title,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20.0,
-                        color: Colors.yellow[600],
-                        fontFamily: "ShadowsIntoLightTwo"),
-                  ),
-                  messageText: Text(
-                    message,
-                    style: TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.green,
-                        fontFamily: "ShadowsIntoLightTwo"),
-                  ),
-                ),
-              ),
-              visible: _mainScreenBloc.notification,
-            );
-          },
-        ));
   }
 
   @override
@@ -215,12 +137,13 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
       child: SingleChildScrollView(
           child: Column(
         children: <Widget>[
+          NetworkIndicator(),
+          NotificationsFlushbar(),
           BlocBuilder<MainScreenBloc, MainScreenState>(
             cubit: _mainScreenBloc,
             builder: (context, state) {
               return Column(
                 children: [
-                  NetworkIndicator(),
                   WalletCardsList(),
                   Container(
                     margin: EdgeInsets.symmetric(
@@ -374,33 +297,10 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
   @override
   void loadWallets() {}
 
-  @override
-  void onFCMTokenGot() {
-    _mainScreenBloc.sendFCMToken();
-  }
-
-  @override
-  void onNotificationReceived() {
-    firebaseMessaging.configure(
-      onLaunch: (Map<String, dynamic> message) async {},
-      onMessage: (Map<String, dynamic> message) async {
-        final notification = message["notification"];
-        this._overlayEntry = this._createOverlayEntry(notification["title"], notification["body"]);
-        Timer.run(() {
-          Overlay.of(context).insert(this._overlayEntry);
-        });
-      },
-      onResume: (Map<String, dynamic> message) async {},
-    );
-  }
 }
 
 abstract class MainScreenEvents {
   void onError(var errorText);
 
   void loadWallets();
-
-  void onFCMTokenGot();
-
-  void onNotificationReceived();
 }

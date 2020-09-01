@@ -1,3 +1,5 @@
+import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
+import 'package:e_wallet/Notifications/notifications_flushbar/notifications_flushbar.dart';
 import 'package:e_wallet/WalletsScreen/TransactionCreate/bloc/transaction_create_bloc.dart';
 import 'package:e_wallet/WalletsScreen/TransactionCreate/bloc/transaction_create_states.dart';
 import 'package:flutter/cupertino.dart';
@@ -79,6 +81,8 @@ class TransactionsCreateState extends State<TransactionsCreate> with OnError {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
+                        NotificationsFlushbar(),
+                        NetworkIndicator(),
                         Container(
                           margin: EdgeInsets.only(top: 15),
                           child: Text(
