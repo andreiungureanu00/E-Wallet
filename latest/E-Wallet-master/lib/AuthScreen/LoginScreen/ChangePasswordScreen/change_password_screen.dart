@@ -1,7 +1,9 @@
+import 'package:e_wallet/AuthScreen/LoginScreen/ChangePasswordScreen/bloc/change_password_bloc.dart';
 import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
 import 'package:e_wallet/rest/auth_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ChangePassword extends StatefulWidget {
@@ -10,16 +12,11 @@ class ChangePassword extends StatefulWidget {
 }
 
 class ChangePasswordState extends State<ChangePassword> {
-  String email;
-  String oldPassword;
-  String newPassword;
-  String accessToken;
-  var response;
-  bool nextStep = false;
+  ChangePasswordPageBloc _pageBloc;
 
   @override
   void initState() {
-    accessToken = CurrentUserSingleton().getAccessToken();
+    _pageBloc = ChangePasswordPageBloc();
     super.initState();
   }
 
@@ -29,10 +26,10 @@ class ChangePasswordState extends State<ChangePassword> {
       appBar: AppBar(
         title: Center(
             child: Column(
-              children: [
-                SizedBox(height: 10),
-              ],
-            )),
+          children: [
+            SizedBox(height: 10),
+          ],
+        )),
         elevation: 0,
         backgroundColor: Colors.grey[600],
         brightness: Brightness.dark,
@@ -49,109 +46,101 @@ class ChangePasswordState extends State<ChangePassword> {
       body: Column(
         children: [
           SizedBox(height: 50),
-          nextStep == false ? Container(
-            child: Column(
-              children: [
-                TextField(
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    email = value;
-                  },
-                  decoration: InputDecoration(
-                      hintText: "Enter your email",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)))),
-                ),
-                SizedBox(height: 10),
-              ],
-            ),
-          ) : Container(),
-          nextStep == true ? Container(
-            child: Column(
-              children: [
-                TextField(
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    oldPassword = value;
-                  },
-                  decoration: InputDecoration(
-                      hintText: "Enter your user ID",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)))),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    oldPassword = value;
-                  },
-                  decoration: InputDecoration(
-                      hintText: "Enter your accessToken",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)))),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    oldPassword = value;
-                  },
-                  decoration: InputDecoration(
-                      hintText: "Enter your old password",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)))),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    newPassword = value;
-                  },
-                  decoration: InputDecoration(
-                      hintText: "Enter your new password",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)))),
-                ),
-              ],
-            ),
-          ) : Container(),
+          BlocBuilder<ChangePasswordPageBloc, ChangePasswordState>(
+
+          )
+          _pageBloc.nextStep == false
+              ? Container(
+                  child: Column(
+                    children: [
+                      TextField(
+                        textAlign: TextAlign.center,
+                        onChanged: (value) {
+                          _pageBloc.email = value;
+                        },
+                        decoration: InputDecoration(
+                            hintText: "Enter your email",
+                            border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0)))),
+                      ),
+                      SizedBox(height: 10),
+                    ],
+                  ),
+                )
+              : Container(),
+          _pageBloc.nextStep == true
+              ? Container(
+                  child: Column(
+                    children: [
+                      TextField(
+                        textAlign: TextAlign.center,
+                        onChanged: (value) {
+                          _pageBloc.oldPassword = value;
+                        },
+                        decoration: InputDecoration(
+                            hintText: "Enter your user ID",
+                            border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0)))),
+                      ),
+                      SizedBox(height: 10),
+                      TextField(
+                        textAlign: TextAlign.center,
+                        onChanged: (value) {
+                          _pageBloc.oldPassword = value;
+                        },
+                        decoration: InputDecoration(
+                            hintText: "Enter your accessToken",
+                            border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0)))),
+                      ),
+                      SizedBox(height: 10),
+                      TextField(
+                        textAlign: TextAlign.center,
+                        onChanged: (value) {
+                          _pageBloc.oldPassword = value;
+                        },
+                        decoration: InputDecoration(
+                            hintText: "Enter your old password",
+                            border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0)))),
+                      ),
+                      SizedBox(height: 10),
+                      TextField(
+                        textAlign: TextAlign.center,
+                        onChanged: (value) {
+                          _pageBloc.newPassword = value;
+                        },
+                        decoration: InputDecoration(
+                            hintText: "Enter your new password",
+                            border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0)))),
+                      ),
+                    ],
+                  ),
+                )
+              : Container(),
           SizedBox(height: 30),
-          nextStep == false ? RaisedButton(
-            child: Text("Next"),
-            onPressed: () async {
-              setState(() {
-                nextStep = true;
-              });
-              await AuthRepository().resetPassword(email);
+          _pageBloc.nextStep == false
+              ? RaisedButton(
+                  child: Text("Next"),
+                  onPressed: () async {
+                    _pageBloc.loadNextStep();
+                    _pageBloc.resetPassword();
+                  },
+                )
+              : RaisedButton(
+                  child: Text("Reset Password"),
+                  onPressed: () async {
+                    _pageBloc.changePassword();
 
-              Fluttertoast.showToast(
-                  msg:
-                  "Check your email. A link with password change has been sent",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER,
-                  timeInSecForIosWeb: 5,
-                  backgroundColor: Colors.blueAccent,
-                  textColor: Colors.white,
-                  fontSize: 16.0);
-            },
-          ) : RaisedButton(
-            child: Text("Reset Password"),
-            onPressed: () async {
-              await AuthRepository().changePassword(oldPassword, newPassword, accessToken, 22);
-
-              Fluttertoast.showToast(
-                  msg:
-                  "Check your email. A link with password change has been sent",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER,
-                  timeInSecForIosWeb: 5,
-                  backgroundColor: Colors.blueAccent,
-                  textColor: Colors.white,
-                  fontSize: 16.0);
-
-              Navigator.pop(context);
-            },
-          ),
+                    Navigator.pop(context);
+                  },
+                ),
         ],
       ),
     );

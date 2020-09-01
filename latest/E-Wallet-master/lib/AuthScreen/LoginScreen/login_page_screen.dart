@@ -65,10 +65,10 @@ class _MyLoginPageState extends State<MyLoginPage> with LoginEvents {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          SizedBox(
-                            height: 240.0,
-                          ),
                           NetworkIndicator(),
+                          SizedBox(
+                            height: 210.0,
+                          ),
                           TextField(
                             textAlign: TextAlign.center,
                             style: TextStyle(color: Colors.white),
