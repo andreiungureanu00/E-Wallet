@@ -140,12 +140,6 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
         children: <Widget>[
           NetworkIndicator(),
           NotificationsFlushbar(),
-          RaisedButton(
-            child: Text("Login with email"),
-            onPressed: () async {
-              await AuthRepository().signInWithEmail("1234@gmail.com", "123456");
-            },
-          ),
           BlocBuilder<MainScreenBloc, MainScreenState>(
             cubit: _mainScreenBloc,
             builder: (context, state) {

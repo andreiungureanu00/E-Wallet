@@ -4,6 +4,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:e_wallet/BankInfoScreen/RatePredictions/rate_prediction.dart';
 import 'package:e_wallet/BankInfoScreen/bloc/bank_info_bloc.dart';
 import 'package:e_wallet/BankInfoScreen/bloc/bank_info_states.dart';
+import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
 import 'package:e_wallet/Notifications/notifications_flushbar/notifications_flushbar.dart';
 import 'package:e_wallet/ReportsScreen/reports_screen.dart';
 import 'package:e_wallet/models/bank.dart';
@@ -116,6 +117,7 @@ class _BankInfoPageState extends State<BankInfoPage> with OnError {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 NotificationsFlushbar(),
+                NetworkIndicator(),
                 Container(
                   child: Text(
                     "Curs valutar",
