@@ -1,6 +1,7 @@
 
 import 'package:e_wallet/Notifications/notifications_list/bloc/notifications_list_bloc.dart';
 import 'package:e_wallet/Notifications/notifications_list/bloc/notifications_list_states.dart';
+import 'package:e_wallet/Notifications/notifications_user_preferences/notifications_user_preferences.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,16 @@ class NotificationsState extends State<Notifications> with NotificationsEvents {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => NotificationsUserPreferences(),
+              ));
+            },
+          )
+        ],
         title: Column(
           children: [
             SizedBox(height: 10),

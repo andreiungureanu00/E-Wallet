@@ -97,4 +97,40 @@ class NotificationsRepository {
 
     return notifications;
   }
+
+  setNotificationPercentageDown(int percentageDown) async {
+    Dio dio = new Dio();
+    var response;
+    var accessToken;
+
+    accessToken = CurrentUserSingleton().getAccessToken();
+
+    Map<String, dynamic> body = {
+      "percentage_down": percentageDown
+    };
+
+    response = await dio.put("${StringConfigs.baseApiUrl}/users/preferences/",
+        data: body,
+        options: Options(
+            headers: {HttpHeaders.authorizationHeader: "Bearer $accessToken"}));
+    print(response.toString());
+  }
+
+  setNotificationPercentageForecastDown(int percentageForecastDown) async {
+    Dio dio = new Dio();
+    var response;
+    var accessToken;
+
+    accessToken = CurrentUserSingleton().getAccessToken();
+
+    Map<String, dynamic> body = {
+      "percentage_down_forecast": percentageForecastDown
+    };
+
+    response = await dio.put("${StringConfigs.baseApiUrl}/users/preferences/",
+        data: body,
+        options: Options(
+            headers: {HttpHeaders.authorizationHeader: "Bearer $accessToken"}));
+    print(response.toString());
+  }
 }

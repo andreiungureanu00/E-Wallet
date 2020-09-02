@@ -9,6 +9,7 @@ import 'package:e_wallet/Notifications/notifications_flushbar/notifications_flus
 import 'package:e_wallet/Notifications/notifications_list/notifications_list_page.dart';
 import 'package:e_wallet/WalletsScreen/WalletCreate/wallet_create.dart';
 import 'package:e_wallet/models/user.dart';
+import 'package:e_wallet/rest/auth_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -139,6 +140,12 @@ class _MainScreenState extends State<MainScreen> with MainScreenEvents {
         children: <Widget>[
           NetworkIndicator(),
           NotificationsFlushbar(),
+          RaisedButton(
+            child: Text("Login with email"),
+            onPressed: () async {
+              await AuthRepository().signInWithEmail("1234@gmail.com", "123456");
+            },
+          ),
           BlocBuilder<MainScreenBloc, MainScreenState>(
             cubit: _mainScreenBloc,
             builder: (context, state) {

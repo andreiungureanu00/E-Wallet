@@ -68,7 +68,7 @@ class _MyLoginPageState extends State<MyLoginPage> with LoginEvents {
                         children: <Widget>[
                           NetworkIndicator(),
                           SizedBox(
-                            height: 210.0,
+                            height: MediaQuery.of(context).size.height/5,
                           ),
                           TextField(
                             textAlign: TextAlign.center,

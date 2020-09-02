@@ -111,6 +111,7 @@ class _BankPageState extends State<BankPage> with OnError {
                   Expanded(
                       child: ListView.builder(
                           controller: scrollController,
+                          physics: const NeverScrollableScrollPhysics(),
                           itemCount: _bankPageBloc.banks.length,
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (BuildContext context, int index) {

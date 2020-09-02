@@ -38,7 +38,7 @@ class BankRepository {
 
       for (var i in response.data["results"]) {
         Bank bank = Bank.fromJson(i);
-        banks.add(bank);
+        banks.insert(0,bank);
       }
 
       return banks;
@@ -49,6 +49,24 @@ class BankRepository {
     }
 
     return null;
+  }
+
+  Future<String> getRatePrediction(int coinID, String date) async {
+    var response;
+    Dio dio = new Dio();
+    var value_sell;
+
+    response = await dio.get(
+        "${StringConfigs.baseApiUrl}/exchange/prediction/?date=$date&currency=$coinID");
+
+    print(response.toString());
+
+    for (var element in response.data) {
+      value_sell = element["rate_sell"];
+    }
+
+
+    return value_sell.toString();
   }
 
   Future<List<Rate>> getAvailableRates(int bankID, Function onError) async {

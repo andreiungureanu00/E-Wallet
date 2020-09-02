@@ -31,13 +31,11 @@ class NotificationsFlushbarState extends State<NotificationsFlushbar>
 
   OverlayEntry _createOverlayEntry(String title, String message) {
     _notificationsBloc.pushNotification();
-    print("am intrat in functie");
     return OverlayEntry(
         builder: (context) =>
             BlocBuilder<NotificationsBloc, NotificationStates>(
               cubit: _notificationsBloc,
               builder: (context, state) {
-                print("am intrat in functie");
                 return Visibility(
                   child: AnimatedContainer(
                     height: 40,
@@ -111,6 +109,7 @@ class NotificationsFlushbarState extends State<NotificationsFlushbar>
 
   @override
   void onNotificationReceived() {
+    print("hello");
     firebaseMessaging.configure(
       onLaunch: (Map<String, dynamic> message) async {},
       onMessage: (Map<String, dynamic> message) async {

@@ -1,8 +1,8 @@
-import 'package:dio/dio.dart';
-import 'package:e_wallet/models/coin.dart';
-import 'package:e_wallet/rest/StringConfigs.dart';
+import 'package:e_wallet/BankInfoScreen/RatePredictions/bloc/rate_prediction_bloc.dart';
+import 'package:e_wallet/BankInfoScreen/RatePredictions/bloc/rate_prediction_states.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RatePredictionPage extends StatefulWidget {
   int coinID;
@@ -15,44 +15,18 @@ class RatePredictionPage extends StatefulWidget {
 
 class _RatePredictionPageState extends State<RatePredictionPage> {
   int coinID;
-  String dropdownValue;
-  List<String> dates = [];
-  bool visible = false;
-  var rate_sell;
+  RatePredictionBloc _ratePredictionBloc;
 
   _RatePredictionPageState(this.coinID);
 
-  getDates(int coin) async {
-    var response;
-    Dio dio = new Dio();
-
-    response = await dio.get(
-        "${StringConfigs.baseApiUrl}/exchange/prediction/?currency=$coinID");
-
-    for (var element in response.data) {
-      String date = element["date"];
-      if (!dates.contains(date)) dates.add(date);
-    }
-
-    if (dropdownValue == null) dropdownValue = dates[0];
-  }
-
-  Future<String> getRatePrediction(int coin, String date) async {
-    var response;
-    Dio dio = new Dio();
-    var value_sell;
-
-    response = await dio.get(
-        "${StringConfigs.baseApiUrl}/exchange/prediction/?date=$date&currency=$coinID");
-
-    print(response.toString());
-
-    for (var element in response.data) {
-      value_sell = element["rate_sell"];
-    }
-
-
-    return value_sell.toString();
+  @override
+  void initState() {
+    _ratePredictionBloc = RatePredictionBloc(coinID);
+    _ratePredictionBloc.getDates(coinID).then((value) {
+      print(_ratePredictionBloc.dates.length.toString());
+      _ratePredictionBloc.reloadPage();
+    });
+    super.initState();
   }
 
   @override
@@ -60,10 +34,9 @@ class _RatePredictionPageState extends State<RatePredictionPage> {
     return Scaffold(
       body: Column(
         children: [
-          FutureBuilder(
-            future: getDates(coinID),
-            builder: (context, snapshot) {
-              if (dates != null) {
+          BlocBuilder<RatePredictionBloc, RatePredictionStates>(
+              cubit: _ratePredictionBloc,
+              builder: (context, snapshot) {
                 return Container(
                   child: Column(
                     children: [
@@ -77,7 +50,7 @@ class _RatePredictionPageState extends State<RatePredictionPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           DropdownButton<String>(
-                            value: dropdownValue,
+                            value: _ratePredictionBloc.dropdownValue,
                             icon: Icon(Icons.arrow_downward),
                             iconSize: 24,
                             elevation: 16,
@@ -87,22 +60,18 @@ class _RatePredictionPageState extends State<RatePredictionPage> {
                               color: Colors.deepPurpleAccent,
                             ),
                             onChanged: (String newValue) async {
-                              setState(() {
-                                dropdownValue = newValue;
-                                visible = true;
-                              });
-                              rate_sell = await getRatePrediction(
-                                  coinID, dropdownValue);
+                              _ratePredictionBloc.dropdownValue = newValue;
+                              _ratePredictionBloc.visible = true;
+                              _ratePredictionBloc.reloadPage();
+                              _ratePredictionBloc.getRatePrediction();
                             },
-                            items: dates
+                            items: _ratePredictionBloc.dates
                                 .map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(
-                                    value,
-                                  style: TextStyle(
-                                    fontSize: 23
-                                  ),
+                                  value,
+                                  style: TextStyle(fontSize: 23),
                                 ),
                               );
                             }).toList(),
@@ -115,22 +84,22 @@ class _RatePredictionPageState extends State<RatePredictionPage> {
                       Visibility(
                         child: Container(
                           child: Text(
-                              "In data de $dropdownValue cursul se asteapta sa fie $rate_sell",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 22,
+                            _ratePredictionBloc.rate_sell != null ?
+                            "In data de ${_ratePredictionBloc.dropdownValue} cursul se asteapta sa fie ${_ratePredictionBloc.rate_sell}" :
+                            "",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 22,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,),
                         ),
-                        visible: visible,
+                        visible: _ratePredictionBloc.visible,
                       )
                     ],
                   ),
                 );
-              } else
-                return CircularProgressIndicator();
-            },
-          ),
+              }),
         ],
       ),
     );
