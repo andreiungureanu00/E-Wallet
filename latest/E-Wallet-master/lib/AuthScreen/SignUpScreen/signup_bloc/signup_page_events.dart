@@ -5,3 +5,4 @@ abstract class SignUpPageEvents extends Object {
 
 class LoadSignUpPage extends SignUpPageEvents {}
 class ReloadSignUpPage extends SignUpPageEvents {}
+class SignUp extends SignUpPageEvents {}

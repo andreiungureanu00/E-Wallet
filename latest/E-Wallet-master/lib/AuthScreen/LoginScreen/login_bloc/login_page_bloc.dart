@@ -29,7 +29,10 @@ class LoginPageBloc extends Bloc<LoginPageEvents, LoginPageStates> {
     CurrentUser currentUser;
 
     try {
-      accessToken = await AuthRepository().login(username, password);
+      accessToken = await AuthRepository().login(username, password, (error) {
+        print(error.toString());
+        _event.onError(error);
+      });
     }
     catch(exception) {
       if (exception is DioError)
@@ -37,7 +40,10 @@ class LoginPageBloc extends Bloc<LoginPageEvents, LoginPageStates> {
     }
 
     await CurrentUserSingleton().setAccessTokenAsync(accessToken);
-    currentUser = await AuthRepository().getUserFromServer(accessToken);
+    currentUser = await AuthRepository().getUserFromServer(accessToken, (error) {
+      print(error.toString());
+      _event.onError(error);
+    });
 
     var photoUrl =
         "https://scontent.fkiv4-1.fna.fbcdn.net/v/t1.30497-1/s480x480/84628273_176159830277856_972693363922829312_n.jpg?_nc_cat=1&_nc_sid=12b3be&_nc_ohc=EiCVFZsOtR0AX8bAVby&_nc_ht=scontent.fkiv4-1.fna&_nc_tp=7&oh=4ca52c73ce307020f39f4731f487731d&oe=5F3BA3AA";
@@ -61,9 +67,15 @@ class LoginPageBloc extends Bloc<LoginPageEvents, LoginPageStates> {
     }
 
     if (event is LoginWithFacebook) {
-      currentUser =  await AuthRepository().logInWithFacebook();
+      currentUser =  await AuthRepository().logInWithFacebook((error) {
+        print(error.toString());
+        _event.onError(error);
+      });
       await CurrentUserSingleton().setCurrentUserAsync(currentUser);
-      accessToken = await AuthRepository().login("testuser", "testuser");
+      accessToken = await AuthRepository().login("testuser", "testuser", (error) {
+        print(error.toString());
+        _event.onError(error);
+      });
       await CurrentUserSingleton().setAccessTokenAsync(accessToken);
       _event.signInWithFacebook();
     }
@@ -76,8 +88,14 @@ class LoginPageBloc extends Bloc<LoginPageEvents, LoginPageStates> {
     }
 
     if (event is LoginWithGoogle) {
-      currentUser = await AuthRepository().logInWithGoogle();
-      accessToken = await AuthRepository().login("testuser", "testuser");
+      currentUser = await AuthRepository().logInWithGoogle((error) {
+        print(error.toString());
+        _event.onError(error);
+      });
+      accessToken = await AuthRepository().login("testuser", "testuser", (error) {
+        print(error.toString());
+        _event.onError(error);
+      });
       await CurrentUserSingleton().setAccessTokenAsync(accessToken);
       await CurrentUserSingleton().setCurrentUserAsync(currentUser);
       _event.signInWithGoogle();

@@ -11,12 +11,13 @@ class NotificationsUserPreferences extends StatefulWidget {
 }
 
 class NotificationsUserPreferencesStates
-    extends State<NotificationsUserPreferences> {
+    extends State<NotificationsUserPreferences> with NotificationsUserPreferencesEvents{
   UserNotificationsBloc _notificationsBloc;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
-    _notificationsBloc = UserNotificationsBloc();
+    _notificationsBloc = UserNotificationsBloc(this);
     _notificationsBloc.initList();
     _notificationsBloc.initPage();
     super.initState();
@@ -25,6 +26,7 @@ class NotificationsUserPreferencesStates
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       body: BlocBuilder<UserNotificationsBloc, UserNotificationsStates>(
         cubit: _notificationsBloc,
         builder: (context, state) {
@@ -123,10 +125,32 @@ class NotificationsUserPreferencesStates
       ),
     );
   }
+
+  @override
+  void onError(errorText) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(errorText),
+        action: SnackBarAction(
+          label: 'Click Me',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+
+  @override
+  void onPercentageDownSet() {
+  }
+
+  @override
+  void onPercentageForecastDownSet() {
+  }
 }
 
 abstract class NotificationsUserPreferencesEvents {
   void onPercentageDownSet();
-
+  void onError(var errorText);
   void onPercentageForecastDownSet();
 }

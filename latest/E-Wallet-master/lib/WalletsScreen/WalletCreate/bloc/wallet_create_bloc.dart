@@ -89,13 +89,19 @@ class WalletCreateBloc extends Bloc<WalletCreateEvents, WalletCreateStates> {
     }
 
     if (event is GetBankID) {
-      bankID = await BankRepository().getBankID(bankName);
+      bankID = await BankRepository().getBankID(bankName, (error) {
+        print(error.toString());
+        _event.onError(error);
+      });
       loadAvailableCurrencies();
       yield WalletCreated();
     }
 
     if (event is GetCurrencyID) {
-      currencyID = await BankRepository().getCurrencyID(currencyName, bankID);
+      currencyID = await BankRepository().getCurrencyID(currencyName, bankID, (error) {
+        print(error.toString());
+        _event.onError(error);
+      });
       print("currencyID = " + currencyID.toString());
     }
   }

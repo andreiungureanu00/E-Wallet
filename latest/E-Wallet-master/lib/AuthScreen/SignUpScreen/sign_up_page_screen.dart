@@ -1,4 +1,3 @@
-
 import 'package:e_wallet/AuthScreen/SignUpScreen/signup_bloc/signup_page_bloc.dart';
 import 'package:e_wallet/AuthScreen/SignUpScreen/signup_bloc/signup_page_states.dart';
 import 'package:e_wallet/MainScreen/MainScreenComponents/Network_Indicator/network_indicator.dart';
@@ -12,12 +11,13 @@ class SignUpPage extends StatefulWidget {
   _SignUpPageState createState() => _SignUpPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _SignUpPageState extends State<SignUpPage> with SignUpScreenEvents {
   SignUpPageBloc signUpPageBloc;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
-    signUpPageBloc = new SignUpPageBloc();
+    signUpPageBloc = new SignUpPageBloc(this);
     signUpPageBloc.loadSignUpPage();
     super.initState();
   }
@@ -25,6 +25,7 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
         backgroundColor: Color(0xffE1E9E5),
         appBar: AppBar(
           title: Row(
@@ -156,14 +157,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           signUpPageBloc.showProgress = true;
                           signUpPageBloc.reloadSignUpPage();
 
-                          try {
-                            await RegisterRepository().createUser(
-                                signUpPageBloc.firstName,
-                                signUpPageBloc.lastName,
-                                signUpPageBloc.email,
-                                signUpPageBloc.password,
-                                signUpPageBloc.username);
-                          } catch (e) {}
+                          signUpPageBloc.signUp();
                         },
                         minWidth: 200.0,
                         height: 5.0,
@@ -184,4 +178,22 @@ class _SignUpPageState extends State<SignUpPage> {
           },
         ));
   }
+
+  @override
+  void onError(errorText) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(errorText),
+        action: SnackBarAction(
+          label: 'Click Me',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+}
+
+abstract class SignUpScreenEvents {
+  void onError(var errorText);
 }

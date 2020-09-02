@@ -34,7 +34,8 @@ class AuthRepository {
       scopes: ['email', 'https://www.googleapis.com/auth/contacts.readonly']);
 
   Future<String> signInWithEmail(String email, String password) async {
-    UserCredential userCredential = (await _auth.signInWithEmailAndPassword(email: email, password: password));
+    UserCredential userCredential = (await _auth.signInWithEmailAndPassword(
+        email: email, password: password));
     print(userCredential.toString());
     var user = userCredential.user;
     await userCredential.user.getIdToken().then((token) {
@@ -43,31 +44,39 @@ class AuthRepository {
     return user.uid;
   }
 
-  Future<String> login(String username, String password) async {
+  Future<String> login(
+      String username, String password, Function onError) async {
     Dio dio = new Dio();
-
+    var response;
     Map<String, dynamic> body = {"username": username, "password": password};
 
     String urlToken = "${StringConfigs.baseApiUrl}/users/token-obtain/";
 
-    var response = await dio.post(
-      urlToken,
-      data: body,
-    );
-
-    return response.data["access"].toString();
+    try {
+      var response = await dio.post(
+        urlToken,
+        data: body,
+      );
+      return response.data["access"].toString();
+    } catch (exception) {
+      if (exception is DioError) {
+        onError(exception.error);
+      }
+      ;
+    }
   }
 
-  Future<CurrentUser> logInWithFacebook() async {
+  Future<CurrentUser> logInWithFacebook(Function onError) async {
     CurrentUser currentUser;
+    Dio dio = new Dio();
     var result = await facebookLogin.logIn(['email']);
     if (result.status == FacebookLoginStatus.loggedIn) {
       try {
         var token = result.accessToken.token;
-        var graphResponse = await http.get(
+        var graphResponse = await dio.get(
             'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email,picture.width(400)&access_token=$token');
 
-        var profile = json.decode(graphResponse.body);
+        var profile = json.decode(graphResponse.data);
         currentUser = CurrentUser(
             profile["first_name"],
             profile["last_name"],
@@ -76,9 +85,9 @@ class AuthRepository {
             profile["password"],
             profile["picture"]["data"]["url"],
             1);
-
-      } on PlatformException catch (e) {
-        print(e.toString());
+      } catch (exception) {
+        if (exception is DioError)
+        onError(exception.error);
       }
     } else if (result.status == FacebookLoginStatus.cancelledByUser) {
       print("CancelledByUser");
@@ -93,38 +102,39 @@ class AuthRepository {
     facebookLogin.logOut();
   }
 
-  Future<CurrentUser> logInWithGoogle() async {
+  Future<CurrentUser> logInWithGoogle(Function onError) async {
     CurrentUser currentUser;
     GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
     GoogleSignInAuthentication googleSignInAuthentication =
-    await googleSignInAccount.authentication;
+        await googleSignInAccount.authentication;
 
     AuthCredential credential = GoogleAuthProvider.getCredential(
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
 
+    try {
+      UserCredential userCredential =
+          (await _auth.signInWithCredential(credential));
+//      var ceva = await userCredential.user
+//          .getIdTokenResult()
+//          .then((ceva) => print(ceva.token));
+      var _user = userCredential.user;
 
-
-    UserCredential userCredential = (await _auth.signInWithCredential(credential));
-    var ceva = await userCredential.user.getIdTokenResult().then((ceva) => print(ceva.token));
-    var _user = userCredential.user;
-//    userCredential.user.getIdToken().then((token) {
-//      print("token is " + token.toString());
-//    });
-//    await _auth.currentUser.getIdToken().then((token) {
-//      print(token.toString());
-//    });
-
-    if (_user != null) {
-      currentUser = CurrentUser(
-          _user.displayName,
-          _user.displayName,
-          _user.email,
-          _user.email,
-          "password",
-          // ignore: deprecated_member_use
-          _user.photoUrl,
-          2);
+      if (_user != null) {
+        currentUser = CurrentUser(
+            _user.displayName,
+            _user.displayName,
+            _user.email,
+            _user.email,
+            "password",
+            // ignore: deprecated_member_use
+            _user.photoUrl,
+            2);
+      }
+    } catch (exception) {
+      if (exception is FirebaseAuthException) {
+        onError(exception.message);
+      }
     }
 
     return currentUser;
@@ -136,28 +146,36 @@ class AuthRepository {
     });
   }
 
-  Future<CurrentUser> getUserFromServer(String accessToken) async {
+  Future<CurrentUser> getUserFromServer(
+      String accessToken, Function onError) async {
     Dio dio = new Dio();
     Response response;
+    CurrentUser user;
 
     dio.interceptors.add(DioCacheManager(
-        CacheConfig(baseUrl: "${StringConfigs.baseApiUrl}/users/profile/"))
+            CacheConfig(baseUrl: "${StringConfigs.baseApiUrl}/users/profile/"))
         .interceptor);
 
-    response = await dio.get("${StringConfigs.baseApiUrl}/users/profile",
-        options: buildCacheOptions(Duration(days: 7),
-            maxStale: Duration(days: 10),
-            forceRefresh: true,
-            options: Options(headers: {
-              HttpHeaders.authorizationHeader: "Bearer $accessToken"
-            })));
+    try {
+      response = await dio.get("${StringConfigs.baseApiUrl}/users/profile",
+          options: buildCacheOptions(Duration(days: 7),
+              maxStale: Duration(days: 10),
+              forceRefresh: true,
+              options: Options(headers: {
+                HttpHeaders.authorizationHeader: "Bearer $accessToken"
+              })));
 
-    CurrentUser user = CurrentUser.fromJson(response.data);
+      user = CurrentUser.fromJson(response.data);
+    } catch (exception) {
+      if (exception is DioError) {
+        onError(exception.error);
+      }
+    }
 
     return user;
   }
 
-  resetPassword(String email) async {
+  resetPassword(String email, Function onError) async {
     Dio dio = new Dio();
     Response response;
 
@@ -165,17 +183,18 @@ class AuthRepository {
 
     try {
       await dio.post(
-        "https://live.curs-valutar.xyz/users/password-reset/",
+        "https://live.curs-valutar.xyz/users/password/",
         data: body,
       );
     } catch (exception) {
       if (exception is DioError) {
-        print(exception.message);
+        onError(exception.error);
       }
     }
   }
 
-  changePassword(String oldPass, String newPass, String token, int uid) async {
+  changePassword(String oldPass, String newPass, String token, int uid,
+      Function onError) async {
     Dio dio = new Dio();
     Response response;
 
@@ -188,7 +207,7 @@ class AuthRepository {
       );
     } catch (exception) {
       if (exception is DioError) {
-        print(exception.message);
+        onError(exception.error);
       }
     }
   }

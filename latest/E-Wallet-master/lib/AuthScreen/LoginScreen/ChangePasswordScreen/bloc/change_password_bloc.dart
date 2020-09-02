@@ -1,5 +1,6 @@
 import 'package:e_wallet/AuthScreen/LoginScreen/ChangePasswordScreen/bloc/change_password_events.dart';
 import 'package:e_wallet/AuthScreen/LoginScreen/ChangePasswordScreen/bloc/change_password_states.dart';
+import 'package:e_wallet/AuthScreen/LoginScreen/ChangePasswordScreen/change_password_screen.dart';
 import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
 import 'package:e_wallet/rest/auth_repository.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class ChangePasswordPageBloc extends Bloc<ChangePasswordEvents, ChangePasswordSt
   String oldPassword;
   String newPassword;
   var accessToken;
+  ChangePasswordScreenEvents _event;
 
   ChangePasswordPageBloc() : super(ChangePasswordPageInit());
 
@@ -24,7 +26,10 @@ class ChangePasswordPageBloc extends Bloc<ChangePasswordEvents, ChangePasswordSt
     }
 
     if (event is ResetPassword) {
-      await AuthRepository().resetPassword(email);
+      await AuthRepository().resetPassword(email, (error) {
+        print(error.toString());
+        _event.onError(error);
+      });
       Fluttertoast.showToast(
           msg:
           "Check your email. A link with password change has been sent",
@@ -39,7 +44,10 @@ class ChangePasswordPageBloc extends Bloc<ChangePasswordEvents, ChangePasswordSt
 
     if (event is ChangePassword) {
       accessToken = CurrentUserSingleton().getAccessToken();
-      await AuthRepository().changePassword(oldPassword, newPassword, accessToken, 22);
+      await AuthRepository().changePassword(oldPassword, newPassword, accessToken, 22, (error) {
+        print(error.toString());
+        _event.onError(error);
+      });
 
       Fluttertoast.showToast(
           msg:

@@ -38,7 +38,7 @@ class BankRepository {
 
       for (var i in response.data["results"]) {
         Bank bank = Bank.fromJson(i);
-        banks.insert(0,bank);
+        banks.insert(0, bank);
       }
 
       return banks;
@@ -51,20 +51,26 @@ class BankRepository {
     return null;
   }
 
-  Future<String> getRatePrediction(int coinID, String date) async {
+  Future<String> getRatePrediction(
+      int coinID, String date, Function onError) async {
     var response;
     Dio dio = new Dio();
     var value_sell;
 
-    response = await dio.get(
-        "${StringConfigs.baseApiUrl}/exchange/prediction/?date=$date&currency=$coinID");
+    try {
+      response = await dio.get(
+          "${StringConfigs.baseApiUrl}/exchange/prediction/?date=$date&currency=$coinID");
 
-    print(response.toString());
+      print(response.toString());
 
-    for (var element in response.data) {
-      value_sell = element["rate_sell"];
+      for (var element in response.data) {
+        value_sell = element["rate_sell"];
+      }
+    } catch (exception) {
+      if (exception is DioError) {
+        onError(exception.error);
+      }
     }
-
 
     return value_sell.toString();
   }
@@ -94,7 +100,7 @@ class BankRepository {
             element["date"],
             element["currency"]["id"],
             element["currency"]["abbr"]);
-        rates.insert(0,rate);
+        rates.insert(0, rate);
       }
     } catch (exception) {
       if (exception is DioError) {
@@ -105,31 +111,43 @@ class BankRepository {
     return rates;
   }
 
-  Future<int> getBankID(String name) async {
+  Future<int> getBankID(String name, Function onError) async {
     Response response;
     Dio dio = new Dio();
     int bankID;
 
-    response = await dio.get(
-        "${StringConfigs.baseApiUrl}/exchange/banks/?format=json&registered_name=$name");
+    try {
+      response = await dio.get(
+          "${StringConfigs.baseApiUrl}/exchange/banks/?format=json&registered_name=$name");
 
-    for (var element in response.data) {
-      bankID = int.parse(element["id"].toString());
+      for (var element in response.data) {
+        bankID = int.parse(element["id"].toString());
+      }
+    } catch (exception) {
+      if (exception is DioError) {
+        onError(exception.error);
+      }
     }
 
     return bankID;
   }
 
-  Future<int> getCurrencyID(String name, int bankID) async {
+  Future<int> getCurrencyID(String name, int bankID, Function onError) async {
     Response response;
     Dio dio = new Dio();
     int currencyID;
 
-    response = await dio.get(
-        "${StringConfigs.baseApiUrl}/exchange/coins/?abbr=$name&bank=$bankID");
+    try {
+      response = await dio.get(
+          "${StringConfigs.baseApiUrl}/exchange/coins/?abbr=$name&bank=$bankID");
 
-    for (var element in response.data) {
-      currencyID = int.parse(element["id"].toString());
+      for (var element in response.data) {
+        currencyID = int.parse(element["id"].toString());
+      }
+    } catch (exception) {
+      if (exception is DioError) {
+        onError(exception.error);
+      }
     }
 
     return currencyID;

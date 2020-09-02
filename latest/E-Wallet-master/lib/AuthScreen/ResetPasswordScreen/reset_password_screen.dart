@@ -3,20 +3,21 @@ import 'package:e_wallet/rest/auth_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   @override
   ResetPasswordScreenState createState() => ResetPasswordScreenState();
 }
 
-class ResetPasswordScreenState extends State<ResetPasswordScreen> {
+class ResetPasswordScreenState extends State<ResetPasswordScreen> with ResetPasswordScreenEvents{
   String email;
   var response;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Center(
             child: Column(
@@ -60,7 +61,10 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
           RaisedButton(
             child: Text("Reset Password"),
             onPressed: () async {
-              await AuthRepository().resetPassword(email);
+              await AuthRepository().resetPassword(email, (error) {
+                print(error.toString());
+                this.onError(error);
+              });
 
               Fluttertoast.showToast(
                   msg:
@@ -79,4 +83,22 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
       ),
     );
   }
+
+  @override
+  void onError(errorText) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(errorText),
+        action: SnackBarAction(
+          label: 'Click Me',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+}
+
+abstract class ResetPasswordScreenEvents {
+  void onError(var errorText);
 }

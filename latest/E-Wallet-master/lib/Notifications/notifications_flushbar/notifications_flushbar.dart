@@ -123,10 +123,10 @@ class NotificationsFlushbarState extends State<NotificationsFlushbar>
       onResume: (Map<String, dynamic> message) async {},
     );
   }
+
 }
 
 abstract class NotificationFlushbarEvents {
   void onFCMTokenGot();
-
   void onNotificationReceived();
 }

@@ -27,6 +27,7 @@ class _MyLoginPageState extends State<MyLoginPage> with LoginEvents {
   var accessToken;
   int authCode;
   LoginPageBloc _loginPageBloc;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
   _MyLoginPageState();
 
@@ -48,6 +49,7 @@ class _MyLoginPageState extends State<MyLoginPage> with LoginEvents {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
         backgroundColor: Color(0xffE1E9E5),
         body: BlocBuilder<LoginPageBloc, LoginPageStates>(
             cubit: _loginPageBloc,
@@ -128,7 +130,7 @@ class _MyLoginPageState extends State<MyLoginPage> with LoginEvents {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ChangePassword(),
+                                    builder: (context) => ChangePasswordScreen(),
                                   ));
                             },
                             child: authCode > 3 ? Text(
@@ -342,9 +344,24 @@ class _MyLoginPageState extends State<MyLoginPage> with LoginEvents {
           builder: (context) => MainScreen(),
         ));
   }
+
+  @override
+  void onError(errorText) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(errorText),
+        action: SnackBarAction(
+          label: 'Click Me',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
 }
 
 abstract class LoginEvents {
   void signInWithFacebook();
   void signInWithGoogle();
+  void onError(var errorText);
 }

@@ -1,19 +1,17 @@
 import 'package:e_wallet/AuthScreen/LoginScreen/ChangePasswordScreen/bloc/change_password_bloc.dart';
 import 'package:e_wallet/AuthScreen/LoginScreen/ChangePasswordScreen/bloc/change_password_states.dart';
-import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
-import 'package:e_wallet/rest/auth_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
-class ChangePassword extends StatefulWidget {
+class ChangePasswordScreen extends StatefulWidget {
   @override
-  ChangePasswordState createState() => ChangePasswordState();
+  ChangePasswordScreenState createState() => ChangePasswordScreenState();
 }
 
-class ChangePasswordState extends State<ChangePassword> {
+class ChangePasswordScreenState extends State<ChangePasswordScreen> with ChangePasswordScreenEvents{
   ChangePasswordPageBloc _pageBloc;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -44,6 +42,7 @@ class ChangePasswordState extends State<ChangePassword> {
           color: Colors.white,
         ),
       ),
+      key: scaffoldKey,
       body: Column(
         children: [
           SizedBox(height: 50),
@@ -123,4 +122,22 @@ class ChangePasswordState extends State<ChangePassword> {
       ),
     );
   }
+
+  @override
+  void onError(errorText) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(errorText),
+        action: SnackBarAction(
+          label: 'Click Me',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+}
+
+abstract class ChangePasswordScreenEvents {
+  void onError(var errorText);
 }

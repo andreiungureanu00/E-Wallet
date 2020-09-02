@@ -13,16 +13,18 @@ class RatePredictionPage extends StatefulWidget {
   _RatePredictionPageState createState() => _RatePredictionPageState(coinID);
 }
 
-class _RatePredictionPageState extends State<RatePredictionPage> {
+class _RatePredictionPageState extends State<RatePredictionPage>
+    with RatePredictionScreenEvents {
   int coinID;
   RatePredictionBloc _ratePredictionBloc;
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
   _RatePredictionPageState(this.coinID);
 
   @override
   void initState() {
-    _ratePredictionBloc = RatePredictionBloc(coinID);
-    _ratePredictionBloc.getDates(coinID).then((value) {
+    _ratePredictionBloc = RatePredictionBloc(coinID, this);
+    _ratePredictionBloc.getDates(coinID, onError).then((value) {
       print(_ratePredictionBloc.dates.length.toString());
       _ratePredictionBloc.reloadPage();
     });
@@ -32,6 +34,7 @@ class _RatePredictionPageState extends State<RatePredictionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       body: Column(
         children: [
           BlocBuilder<RatePredictionBloc, RatePredictionStates>(
@@ -84,9 +87,9 @@ class _RatePredictionPageState extends State<RatePredictionPage> {
                       Visibility(
                         child: Container(
                           child: Text(
-                            _ratePredictionBloc.rate_sell != null ?
-                            "In data de ${_ratePredictionBloc.dropdownValue} cursul se asteapta sa fie ${_ratePredictionBloc.rate_sell}" :
-                            "",
+                            _ratePredictionBloc.rate_sell != null
+                                ? "In data de ${_ratePredictionBloc.dropdownValue} cursul se asteapta sa fie ${_ratePredictionBloc.rate_sell}"
+                                : "",
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 22,
@@ -104,4 +107,22 @@ class _RatePredictionPageState extends State<RatePredictionPage> {
       ),
     );
   }
+
+  @override
+  void onError(errorText) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(errorText),
+        action: SnackBarAction(
+          label: 'Click Me',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+}
+
+abstract class RatePredictionScreenEvents {
+  void onError(var errorText);
 }

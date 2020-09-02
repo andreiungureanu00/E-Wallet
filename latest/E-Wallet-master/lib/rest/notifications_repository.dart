@@ -5,7 +5,6 @@ import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:e_wallet/CurrentUserSingleton/current_user_singleton.dart';
 import 'package:e_wallet/models/NotificationMessage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 
 import 'StringConfigs.dart';
 
@@ -98,25 +97,29 @@ class NotificationsRepository {
     return notifications;
   }
 
-  setNotificationPercentageDown(int percentageDown) async {
+  setNotificationPercentageDown(int percentageDown, Function onError) async {
     Dio dio = new Dio();
     var response;
     var accessToken;
 
     accessToken = CurrentUserSingleton().getAccessToken();
 
-    Map<String, dynamic> body = {
-      "percentage_down": percentageDown
-    };
+    Map<String, dynamic> body = {"percentage_down": percentageDown};
 
-    response = await dio.put("${StringConfigs.baseApiUrl}/users/preferences/",
-        data: body,
-        options: Options(
-            headers: {HttpHeaders.authorizationHeader: "Bearer $accessToken"}));
-    print(response.toString());
+    try {
+      response = await dio.put("${StringConfigs.baseApiUrl}/users/preferences/",
+          data: body,
+          options: Options(headers: {
+            HttpHeaders.authorizationHeader: "Bearer $accessToken"
+          }));
+      print(response.toString());
+    } catch (exception) {
+      if (exception is DioError) onError(exception.error);
+    }
   }
 
-  setNotificationPercentageForecastDown(int percentageForecastDown) async {
+  setNotificationPercentageForecastDown(
+      int percentageForecastDown, Function onError) async {
     Dio dio = new Dio();
     var response;
     var accessToken;
@@ -127,10 +130,15 @@ class NotificationsRepository {
       "percentage_down_forecast": percentageForecastDown
     };
 
-    response = await dio.put("${StringConfigs.baseApiUrl}/users/preferences/",
-        data: body,
-        options: Options(
-            headers: {HttpHeaders.authorizationHeader: "Bearer $accessToken"}));
-    print(response.toString());
+    try {
+      response = await dio.put("${StringConfigs.baseApiUrl}/users/preferences/",
+          data: body,
+          options: Options(headers: {
+            HttpHeaders.authorizationHeader: "Bearer $accessToken"
+          }));
+      print(response.toString());
+    } catch (exception) {
+      if (exception is DioError) onError(exception.error);
+    }
   }
 }

@@ -13,7 +13,7 @@ class RegisterRepository {
   RegisterRepository._internal();
 
   Future<void> createUser(String firstName, String lastName, String email,
-      String password, String username) async {
+      String password, String username, Function onError) async {
     Dio dio = new Dio();
 
     Map<String, dynamic> body = {
@@ -25,10 +25,16 @@ class RegisterRepository {
     };
 
     String urlRegister = "${StringConfigs.baseApiUrl}/users/register/";
-    var response;
-    response = await dio.post(urlRegister, data: body);
+    try {
+      var response;
+      response = await dio.post(urlRegister, data: body);
 
-    print(response.data.toString());
+      print(response.data.toString());
+    }
+    catch(exception) {
+      if (exception is DioError)
+        onError(exception.error);
+    }
   }
 
   Future<void> createUserOnFirebase(String email, String password) async {

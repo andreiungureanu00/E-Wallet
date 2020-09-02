@@ -1,6 +1,7 @@
 import 'package:e_wallet/Notifications/notifications_list/notifications_list_page.dart';
 import 'package:e_wallet/Notifications/notifications_user_preferences/bloc/user_notifications_events.dart';
 import 'package:e_wallet/Notifications/notifications_user_preferences/bloc/user_notifications_states.dart';
+import 'package:e_wallet/Notifications/notifications_user_preferences/notifications_user_preferences.dart';
 import 'package:e_wallet/rest/notifications_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,8 +12,9 @@ class UserNotificationsBloc
   String defaultForecastPercentage = "3";
   List<String> percentsList = [];
   List<String> percentsForecastList = [];
+  NotificationsUserPreferencesEvents _event;
 
-  UserNotificationsBloc() : super(PageLoaded());
+  UserNotificationsBloc(this._event) : super(PageLoaded());
 
   @override
   Stream<UserNotificationsStates> mapEventToState(
@@ -26,11 +28,19 @@ class UserNotificationsBloc
     }
 
     if (event is SetPercentageDown) {
-      await NotificationsRepository().setNotificationPercentageDown(int.parse(defaultPercentage));
+      await NotificationsRepository().setNotificationPercentageDown(int.parse(defaultPercentage), (error) {
+        print(error.toString());
+        _event.onError(error);
+      }
+      );
       yield PercentageDownSet();
     }
     if (event is SetPercentageDownForecast) {
-      await NotificationsRepository().setNotificationPercentageForecastDown(int.parse(defaultForecastPercentage));
+      await NotificationsRepository().setNotificationPercentageForecastDown(int.parse(defaultForecastPercentage), (error) {
+        print(error.toString());
+        _event.onError(error);
+      }
+      );
       yield PercentageDownForecastSet();
     }
   }

@@ -82,6 +82,8 @@ class WalletCreateState extends State<WalletCreate> with WalletCreateEvent {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
+                      NetworkIndicator(),
+                      NotificationsFlushbar(),
                       Container(
                         margin: EdgeInsets.only(top: 15),
                         child: Text(
@@ -135,8 +137,6 @@ class WalletCreateState extends State<WalletCreate> with WalletCreateEvent {
                           SizedBox(width: 30),
                           Column(
                             children: [
-                              NetworkIndicator(),
-                              NotificationsFlushbar(),
                               Text("Choose currency"),
                               DropdownButton<String>(
                                   value: defaultCurrency,
